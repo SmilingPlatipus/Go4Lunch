@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="drawer_item_your_lunch">Votre déjeuner</string>
+    <string name="drawer_item_settings">Paramètres</string>
+    <string name="drawer_item_log_out">Se déconnecter</string>
+    <string name="default_title">J\'ai faim !</string>
+    <string name="logged_in_success">Connecté avec succès</string>
+    <string name="logged_in_failed">Connexion échouée</string>
+    <string name="logged_in_failed_no_network">Il n\'y a aucun réseau disponible</string>
+    <string name="logged_in_failed_unknown_error">Une erreur inconnue est survenue</string>
+    <string name="user_current_location_not_found">Impossible de déterminer la position courante</string>
+    <string name="title_map">Carte</string>
+    <string name="title_restaurants">Liste des restaurants</string>
+    <string name="title_workmates">Collègues disponibles</string>
+</resources>
