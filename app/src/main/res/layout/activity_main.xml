@@ -57,7 +57,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/drawer_navigationview"
-        android:fitsSystemWindows="false"
         app:menu="@menu/menu_item"
         app:headerLayout="@layout/header_drawer"
         android:layout_gravity="start"/>

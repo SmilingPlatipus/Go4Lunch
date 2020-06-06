@@ -1,6 +1,7 @@
 package com.example.go4lunch.activities;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -19,9 +20,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -55,6 +60,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     DrawerLayout mDrawerLayout;
     Toolbar mToolbar;
     NavigationView mDrawerNavigationView;
+    ActionBarDrawerToggle toggle;
+
+    // User Profile Widgets
+    ImageView userProfileImage;
+    TextView userProfileFirstName, userProfileLastName, userProfileEmail;
+
+    // User Profile data
+    Uri photoUrl;
+    String firstName, lastName, email;
 
     // Multidex purposes
     @Override
@@ -81,24 +95,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupWithNavController(bottomNavView, navController);
 
-
-
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        findViewById(R.id.app_bar_menu).setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view) {
-                mDrawerLayout.openDrawer(GravityCompat.START);
-            }
-        });
+
 
         mDrawerNavigationView.setNavigationItemSelectedListener(this);
+
+        toggle = new ActionBarDrawerToggle(
+                this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
+        mDrawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        // Initializing drawer header
+
+        View mHeader =mDrawerNavigationView.getHeaderView(0);
+        userProfileImage = mHeader.findViewById(R.id.header_profile_pic);
+        userProfileFirstName = mHeader.findViewById(R.id.header_first_name);
+        userProfileLastName = mHeader.findViewById(R.id.header_last_name);
+        userProfileEmail = mHeader.findViewById(R.id.header_email);
 
         // Initialize the Google Places SDK
         Places.initialize(this, String.valueOf(R.string.google_maps_key));
         // Create a new Places client instance
         placesClient = Places.createClient(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (this.mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            this.mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else
+        super.onBackPressed();
     }
 
 
@@ -110,8 +137,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Intent intent = new Intent(MainActivity.this, SigninActivity.class);
             startActivity(intent);
         }
-        else
+        else {
             getUserProfile();
+            getProfileData();
+            applyProfileDataOnHeader();
+        }
     }
 
 
@@ -130,7 +160,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         user = FirebaseAuth.getInstance().getCurrentUser();
     }
 
-    public void getProviderData() {
+    public void getProfileData() {
+
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             for (UserInfo profile : user.getProviderData()) {
@@ -142,11 +173,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 // Name, email address, and profile photo Url
                 String name = profile.getDisplayName();
-                String email = profile.getEmail();
-                Uri photoUrl = profile.getPhotoUrl();
+                getIdentity(name);
+                email = profile.getEmail();
+                photoUrl = profile.getPhotoUrl();
             }
         }
 
+    }
+
+    public void getIdentity(String userIdentity){
+        firstName = lastName = null;
+        int lastSpacePosition = 0;
+        int index = 0;
+
+        // Determining where is the last space character before lastname
+        for (char currentLetter : userIdentity.toCharArray()) {
+            if (currentLetter == ' ')
+                lastSpacePosition = index;
+            index++;
+        }
+
+        // Retrieving firstname and lastname
+        firstName = userIdentity.substring(0,lastSpacePosition);
+        lastName = userIdentity.substring(lastSpacePosition+1);
+
+
+
+    }
+    public void applyProfileDataOnHeader(){
+
+        // Apply profile informations into drawer layout
+        Glide.with(this)
+                .load(photoUrl)
+                .apply(RequestOptions.circleCropTransform())
+                .into(userProfileImage);
+
+        userProfileFirstName.setText(firstName);
+        userProfileLastName.setText(lastName);
+        userProfileEmail.setText(email);
     }
 
     public boolean isGoogleApiAvailable(){
@@ -186,11 +250,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // return after the user has made a selection.
         List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
 
-
         Intent intent = new Autocomplete.IntentBuilder(
                 AutocompleteActivityMode.OVERLAY, fields)
                 .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                .build(getApplicationContext());
+                .build(this);
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
     }
 
