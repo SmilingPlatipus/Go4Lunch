@@ -6,7 +6,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:weightSum="2"
-    android:layout_height="250dp">
+    android:layout_height="250dp"
+    android:background="@color/colorAccent2">
 
     <TextView
         android:id="@+id/header_app_name"
