@@ -106,6 +106,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        initProfileInformations();
+        initGooglePlaces();
+    }
+
+    public void initProfileInformations(){
         // Initializing drawer header
 
         View mHeader =mDrawerNavigationView.getHeaderView(0);
@@ -113,13 +118,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userProfileFirstName = mHeader.findViewById(R.id.header_first_name);
         userProfileLastName = mHeader.findViewById(R.id.header_last_name);
         userProfileEmail = mHeader.findViewById(R.id.header_email);
-
+    }
+    public void initGooglePlaces(){
         // Initialize the Google Places SDK
         Places.initialize(this, String.valueOf(R.string.google_maps_key));
         // Create a new Places client instance
         placesClient = Places.createClient(this);
     }
-
     @Override
     public void onBackPressed() {
         if (this.mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -127,7 +132,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else
         super.onBackPressed();
     }
-
 
     @Override
     protected void onStart() {
@@ -143,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             applyProfileDataOnHeader();
         }
     }
-
 
     public FirebaseUser checkCurrentUser() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -243,7 +246,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
-
 
     public void startAutoCompleteActivity(View view) {
         // Set the fields to specify which types of place data to
