@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:weightSum="2"
     android:layout_height="250dp"
-    android:background="@color/colorAccent2">
+    android:background="@mipmap/group_meal"
+    android:orientation="vertical"
+    android:weightSum="2">
 
     <TextView
         android:id="@+id/header_app_name"
@@ -16,14 +15,15 @@
         android:layout_weight="1"
         android:gravity="center"
         android:text="@string/app_name"
+        android:textColor="@android:color/background_light"
         android:textSize="36sp"
         android:textStyle="bold" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/header_profile_pic"
@@ -54,14 +54,15 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/header_first_name"
             app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/header_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="TextView"
             android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@id/header_first_name"
-            app:layout_constraintLeft_toRightOf="@id/header_profile_pic" />
+            app:layout_constraintLeft_toRightOf="@id/header_profile_pic"
+            app:layout_constraintTop_toBottomOf="@id/header_first_name" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="vertical"
+<LinearLayout xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -36,7 +37,6 @@
         </FrameLayout>
 
         <androidx.drawerlayout.widget.DrawerLayout
-            xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/drawer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -44,14 +44,34 @@
             tools:context=".activities.MainActivity">
 
             <com.google.android.material.navigation.NavigationView
+                android:id="@+id/drawer_navigationview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/drawer_navigationview"
-                app:menu="@menu/menu_item"
+                android:layout_gravity="start"
+                android:background="@color/colorPrimaryDark2"
                 android:paddingTop="?attr/actionBarSize"
                 app:headerLayout="@layout/header_drawer"
-                android:layout_gravity="start"
-                android:background="@color/colorPrimaryDark2"/>
+                app:menu="@menu/menu_item" >
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/imageView"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:layout_marginBottom="?actionBarSize"
+                        android:paddingBottom="10dp"
+                        android:tint="@color/design_default_color_on_primary"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:srcCompat="@mipmap/meal_icon" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.navigation.NavigationView>
 
         </androidx.drawerlayout.widget.DrawerLayout>
 
