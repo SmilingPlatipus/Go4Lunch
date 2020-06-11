@@ -4,7 +4,8 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
 
-    <color name="colorPrimary2">#00796B</color>
-    <color name="colorPrimaryDark2">#0C6E6E</color>
+    <color name="colorPrimary2">#009688</color>
+    <color name="colorPrimaryDark2">#13B5B5</color>
     <color name="colorAccent2">#148DBC</color>
+    <color name="colorTextShadow">#86868F</color>
 </resources>

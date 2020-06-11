@@ -26,9 +26,11 @@
     <string name="user_current_location_not_found">Unable to find current location</string>
 
     <!-- Bottom navigationview strings -->
-
     <string name="title_map">Map</string>
     <string name="title_restaurants">Restaurants list</string>
     <string name="title_workmates">Workmates available</string>
+
+    <!-- Recyclerview strings -->
+    <string name="workmate_not_chosen">hasn\'t decided yet</string>
 
 </resources>

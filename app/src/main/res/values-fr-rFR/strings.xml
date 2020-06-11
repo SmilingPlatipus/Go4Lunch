@@ -12,4 +12,5 @@
     <string name="title_map">Carte</string>
     <string name="title_restaurants">Liste des restaurants</string>
     <string name="title_workmates">Collègues disponibles</string>
+    <string name="workmate_not_chosen">ne s\'est pas encore décidé</string>
 </resources>

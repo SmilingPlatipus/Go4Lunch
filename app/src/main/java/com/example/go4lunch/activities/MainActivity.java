@@ -28,6 +28,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
+import com.example.go4lunch.model.Workmate;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.Status;
@@ -45,6 +47,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.util.Arrays;
 import java.util.List;
@@ -69,6 +73,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // User Profile data
     Uri photoUrl;
     String firstName, lastName, email;
+
+    // Firebase database reference
+    public static FirebaseFirestore firebaseFirestore;
+
+    // Firestore options for RecyclerView
+    public static FirestoreRecyclerOptions<Workmate> options;
+
 
     // Multidex purposes
     @Override
@@ -104,10 +115,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
         mDrawerLayout.addDrawerListener(toggle);
+        toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.quantum_white_100));
         toggle.syncState();
 
         initProfileInformations();
         initGooglePlaces();
+
+        // Access the workmates collection on Firestore and keep real time synced
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        // Query to database
+        Query query = firebaseFirestore.collection("workmates");
+        // Recycler Options
+        options = new FirestoreRecyclerOptions.Builder<Workmate>()
+                .setQuery(query,Workmate.class)
+                .build();
+
+
     }
 
     public void initProfileInformations(){
