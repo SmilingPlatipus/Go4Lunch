@@ -56,14 +56,12 @@ public class WorkmatesFragment extends Fragment
                         .load(model.getImage())
                         .apply(RequestOptions.circleCropTransform())
                         .into(holder.workmateImage);
-
-
             }
         };
         // Initializing Recyclerview
-        mWorkmates = (RecyclerView) root;
-        mWorkmates.setAdapter(adapter);
+        mWorkmates = (RecyclerView) root.findViewById(R.id.workmates_recyclerview);
         mWorkmates.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mWorkmates.setAdapter(adapter);
 
 
 
@@ -77,17 +75,19 @@ public class WorkmatesFragment extends Fragment
         return root;
     }
 
+
     @Override
-    public void onStart() {
-        super.onStart();
-        adapter.startListening();
+    public void onPause() {
+        super.onPause();
+        adapter.stopListening();
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        adapter.stopListening();
+    public void onResume() {
+        super.onResume();
+        adapter.startListening();
     }
+
 
     private class WorkmateViewHolder extends RecyclerView.ViewHolder
     {
