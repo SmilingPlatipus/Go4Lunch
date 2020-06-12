@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
+import com.example.go4lunch.adapters.WorkmateAdapter;
 import com.example.go4lunch.model.Workmate;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 
@@ -39,25 +40,8 @@ public class WorkmatesFragment extends Fragment
 
 
         // Creating adapter for RecyclerView
-        adapter = new FirestoreRecyclerAdapter<Workmate, WorkmateViewHolder>(options)
-        {
-            @NonNull
-            @Override
-            public WorkmateViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_recyclerview, parent, false);
-                return new WorkmateViewHolder(view);
-            }
+        adapter = new WorkmateAdapter(options);
 
-            @Override
-            protected void onBindViewHolder(@NonNull WorkmateViewHolder holder, int position, @NonNull Workmate model) {
-                holder.workmateName.setText(model.getName() + " " + getString(R.string.workmate_not_chosen));
-
-                Glide.with(root.getContext())
-                        .load(model.getImage())
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(holder.workmateImage);
-            }
-        };
         // Initializing Recyclerview
         mWorkmates = (RecyclerView) root.findViewById(R.id.workmates_recyclerview);
         mWorkmates.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -88,17 +72,4 @@ public class WorkmatesFragment extends Fragment
         adapter.startListening();
     }
 
-
-    private class WorkmateViewHolder extends RecyclerView.ViewHolder
-    {
-        private ImageView workmateImage;
-        private TextView workmateName;
-
-        public WorkmateViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            workmateImage = itemView.findViewById(R.id.cardview_workmate_pic);
-            workmateName = itemView.findViewById(R.id.cardview_workmate_name);
-        }
-    }
 }

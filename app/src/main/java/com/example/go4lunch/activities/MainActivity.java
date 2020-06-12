@@ -47,6 +47,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -76,9 +77,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // Firebase database reference
     public static FirebaseFirestore firebaseFirestore;
+    private CollectionReference workmatesReference;
 
     // Firestore options for RecyclerView
     public static FirestoreRecyclerOptions<Workmate> options;
+
 
 
     // Multidex purposes
@@ -123,14 +126,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Access the workmates collection on Firestore and keep real time synced
         firebaseFirestore = FirebaseFirestore.getInstance();
+        workmatesReference = firebaseFirestore.collection("workmates");
         // Query to database
-        Query query = firebaseFirestore.collection("workmates");
+        Query query = workmatesReference.orderBy("name",Query.Direction.DESCENDING);
         // Recycler Options
         options = new FirestoreRecyclerOptions.Builder<Workmate>()
                 .setQuery(query,Workmate.class)
                 .build();
-
-
     }
 
     public void initProfileInformations(){

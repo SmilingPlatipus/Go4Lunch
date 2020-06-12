@@ -7,7 +7,11 @@
     android:name="com.example.go4lunch.fragments.WorkmatesFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:scrollbars="vertical"
-    tools:listitem="@layout/row_recyclerview"
-    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+    />
+    <!--
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/row_recyclerview"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        -->
