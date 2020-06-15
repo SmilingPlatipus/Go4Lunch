@@ -100,8 +100,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         mToolbar = findViewById(R.id.toolbar);
-        //mDrawerLayout = findViewById(R.id.drawer);
-       // mDrawerNavigationView = findViewById(R.id.drawer_navigationview);
+        mDrawerLayout = findViewById(R.id.drawer);
+        mDrawerNavigationView = findViewById(R.id.drawer_navigationview);
 
         BottomNavigationView bottomNavView = findViewById(R.id.bottom_nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -115,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-/*
         mDrawerNavigationView.setNavigationItemSelectedListener(this);
 
         toggle = new ActionBarDrawerToggle(
@@ -126,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         initProfileInformations();
 
- */
         initGooglePlaces();
 
         // Access the workmates collection on Firestore and keep real time synced
@@ -151,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     public void initGooglePlaces(){
         // Initialize the Google Places SDK
-        Places.initialize(getApplicationContext(), "getString(R.string.google_maps_key)");
+        Places.initialize(getApplicationContext(), "AIzaSyBOwjS7p-6cBR9VxkDCO8inN63dlRi5Vyc");
         // Create a new Places client instance
         placesClient = Places.createClient(this);
     }
@@ -174,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else {
             getUserProfile();
             getProfileData();
-            //applyProfileDataOnHeader();
+            applyProfileDataOnHeader();
         }
     }
 
@@ -262,6 +260,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+                Toast.makeText(getApplicationContext(),"Place: " + place.getName() + ", " + place.getId(),Toast.LENGTH_SHORT).show();
             }
 
             @Override

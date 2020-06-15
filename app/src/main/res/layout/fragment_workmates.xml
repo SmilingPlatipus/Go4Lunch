@@ -5,5 +5,4 @@
     android:name="com.example.go4lunch.fragments.WorkmatesFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbars="vertical"
-    android:layout_marginVertical="?attr/actionBarSize"/>
+    android:scrollbars="vertical"/>
