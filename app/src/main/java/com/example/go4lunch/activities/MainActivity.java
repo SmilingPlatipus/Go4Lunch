@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     public void initGooglePlaces(){
         // Initialize the Google Places SDK
-        Places.initialize(getApplicationContext(), "AIzaSyBOwjS7p-6cBR9VxkDCO8inN63dlRi5Vyc");
+        Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
         // Create a new Places client instance
         placesClient = Places.createClient(this);
     }
