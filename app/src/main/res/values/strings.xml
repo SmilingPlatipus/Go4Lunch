@@ -32,5 +32,6 @@
 
     <!-- Recyclerview strings -->
     <string name="workmate_not_chosen">hasn\'t decided yet</string>
+    <string name="log_out">You have been logged out</string>
 
 </resources>

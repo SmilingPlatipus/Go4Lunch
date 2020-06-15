@@ -13,4 +13,5 @@
     <string name="title_restaurants">Liste des restaurants</string>
     <string name="title_workmates">Collègues disponibles</string>
     <string name="workmate_not_chosen">ne s\'est pas encore décidé</string>
+    <string name="log_out">Vous avez été déconnecté</string>
 </resources>
