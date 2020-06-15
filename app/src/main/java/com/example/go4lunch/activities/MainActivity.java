@@ -41,6 +41,8 @@ import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -96,9 +98,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mDrawerLayout = findViewById(R.id.drawer);
-        mToolbar = findViewById(R.id.app_bar);
-        mDrawerNavigationView = findViewById(R.id.drawer_navigationview);
+
+        mToolbar = findViewById(R.id.toolbar);
+        //mDrawerLayout = findViewById(R.id.drawer);
+       // mDrawerNavigationView = findViewById(R.id.drawer_navigationview);
 
         BottomNavigationView bottomNavView = findViewById(R.id.bottom_nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -112,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-
+/*
         mDrawerNavigationView.setNavigationItemSelectedListener(this);
 
         toggle = new ActionBarDrawerToggle(
@@ -122,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         initProfileInformations();
+
+ */
         initGooglePlaces();
 
         // Access the workmates collection on Firestore and keep real time synced
@@ -146,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     public void initGooglePlaces(){
         // Initialize the Google Places SDK
-        Places.initialize(this, String.valueOf(R.string.google_maps_key));
+        Places.initialize(getApplicationContext(), "getString(R.string.google_maps_key)");
         // Create a new Places client instance
         placesClient = Places.createClient(this);
     }
@@ -169,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else {
             getUserProfile();
             getProfileData();
-            applyProfileDataOnHeader();
+            //applyProfileDataOnHeader();
         }
     }
 
@@ -228,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     }
+
     public void applyProfileDataOnHeader(){
 
         // Apply profile informations into drawer layout
@@ -241,47 +247,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userProfileEmail.setText(email);
     }
 
-    public boolean isGoogleApiAvailable(){
-        Log.d(TAG, "isGoogleApiAvailable: ");
-
-        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(MainActivity.this);
-        if (available == ConnectionResult.SUCCESS){
-            Log.d(TAG, "isGoogleApiAvailable: Google Play Services is working");
-            return true;
-        }
-        else {
-            Toast.makeText(this, "A problem occured, using Google Play Services", Toast.LENGTH_LONG).show();
-            return false;
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
-            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                // TODO: Handle the error.
-                Status status = Autocomplete.getStatusFromIntent(data);
-                Log.i(TAG, status.getStatusMessage());
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                // The user canceled the operation.
-            }
-        }
-    }
-
     public void startAutoCompleteActivity(View view) {
-        // Set the fields to specify which types of place data to
-        // return after the user has made a selection.
-        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
 
-        Intent intent = new Autocomplete.IntentBuilder(
-                AutocompleteActivityMode.OVERLAY, fields)
-                .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                .build(this);
-        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+        // Initialize the AutocompleteSupportFragment.
+        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+
+        // Specify the types of place data to return.
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+
+        // Set up a PlaceSelectionListener to handle the response.
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+                Log.i(TAG, "An error occurred: " + status);
+            }
+        });
+
+
+
+        mToolbar.setVisibility(View.INVISIBLE);
     }
 
     @Override
