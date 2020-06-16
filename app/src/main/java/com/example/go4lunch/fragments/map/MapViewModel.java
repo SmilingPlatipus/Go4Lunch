@@ -9,17 +9,17 @@ import androidx.lifecycle.ViewModel;
 public class MapViewModel extends ViewModel
 {
 
-    private MutableLiveData<String> mText;
-    private Location currentLocation;
+    private MutableLiveData<Location> currentLocation;
 
     // TODO : voir comment conserver et mettre à jour automatiquement la position courante
 
     public MapViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("");
+        currentLocation = new MutableLiveData<>();
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public LiveData<Location> getCurrentLocation() {
+        return currentLocation;
     }
+
+    public void setCurrentLocation(MutableLiveData<Location> location) { this.currentLocation = location;}
 }

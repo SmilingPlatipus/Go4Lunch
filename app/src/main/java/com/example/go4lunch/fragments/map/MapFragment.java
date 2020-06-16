@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.go4lunch.R;
@@ -26,14 +27,16 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import static android.content.Context.LOCATION_SERVICE;
 import static com.example.go4lunch.activities.MainActivity.mFusedLocationProviderClient;
 import static com.example.go4lunch.activities.MainActivity.mMap;
+import static com.facebook.FacebookSdk.getApplicationContext;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener
+public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnPoiClickListener
 {
     private static final String TAG = "MapFragment";
 
@@ -109,6 +112,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         Log.d(TAG, "onMapReady: Map is ready");
         mMap = googleMap;
         getDeviceLocation();
+        mMap.setOnPoiClickListener(this);
     }
 
     private void initMap(){
@@ -136,7 +140,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,DEFAULT_ZOOM));
                             mMap.setMyLocationEnabled(true);
                             mMap.getUiSettings().setMyLocationButtonEnabled(true);
-
+                            mMap.getUiSettings().setCompassEnabled(true);
                         }
                         else{
                             Log.d(TAG, "onComplete: current location not found");
@@ -168,5 +172,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     @Override
     public void onProviderDisabled(String s) {
 
+    }
+
+    @Override
+    public void onPoiClick(PointOfInterest pointOfInterest) {
+        Toast.makeText(getApplicationContext(), "Clicked: " +
+                               pointOfInterest.name + "\nPlace ID:" + pointOfInterest.placeId +
+                               "\nLatitude:" + pointOfInterest.latLng.latitude +
+                               " Longitude:" + pointOfInterest.latLng.longitude,
+                       Toast.LENGTH_SHORT).show();
     }
 }

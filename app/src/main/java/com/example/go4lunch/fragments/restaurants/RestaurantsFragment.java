@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,6 +31,7 @@ public class RestaurantsFragment extends Fragment
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);
+                Toast.makeText(getContext(),"Value of textView is "+ textView.getText(),Toast.LENGTH_SHORT).show();
             }
         });
         return root;
