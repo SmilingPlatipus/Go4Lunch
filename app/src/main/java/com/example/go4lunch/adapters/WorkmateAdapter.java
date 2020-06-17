@@ -1,8 +1,6 @@
 package com.example.go4lunch.adapters;
 
-import android.app.Application;
-import android.content.Context;
-import android.content.res.Resources;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +8,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -36,6 +33,7 @@ public class WorkmateAdapter extends FirestoreRecyclerAdapter<Workmate, Workmate
     protected void onBindViewHolder(@NonNull WorkmateHolder holder, int position, @NonNull Workmate model) {
         String workmateString = model.getName() + " " + holder.workmateImage.getContext().getString(R.string.workmate_not_chosen);
         holder.workmateName.setText(workmateString);
+        holder.workmateName.setTextColor(holder.workmateName.getHintTextColors());
 
         Glide.with(holder.workmateImage.getContext())
                 .load(model.getImage())
@@ -58,7 +56,7 @@ public class WorkmateAdapter extends FirestoreRecyclerAdapter<Workmate, Workmate
             super(itemView);
 
             workmateImage = itemView.findViewById(R.id.cardview_workmate_pic);
-            workmateName = itemView.findViewById(R.id.cardview_workmate_name);
+            workmateName = itemView.findViewById(R.id.cardview_workmate_informations);
         }
     }
 

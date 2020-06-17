@@ -54,9 +54,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:alpha="0.7"
         android:background="@color/colorPrimaryDark2"
-        android:paddingTop="?attr/actionBarSize"
+        android:layout_marginTop="?attr/actionBarSize"
         app:headerLayout="@layout/header_drawer"
         app:menu="@menu/menu_item">
 
