@@ -3,7 +3,6 @@
     android:id="@+id/drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:alpha="0.9"
     app:layout_constraintBottom_toTopOf="@+id/bottom_nav_view"
     tools:context=".activities.MainActivity"
     tools:openDrawer="start"

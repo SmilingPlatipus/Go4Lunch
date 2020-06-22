@@ -17,41 +17,45 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.go4lunch.R;
+import com.example.go4lunch.model.NearbyPlacesData;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+
 import static android.content.Context.LOCATION_SERVICE;
 import static com.example.go4lunch.activities.MainActivity.mFusedLocationProviderClient;
 import static com.example.go4lunch.activities.MainActivity.mMap;
+import static com.example.go4lunch.activities.MainActivity.currentLocation;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnPoiClickListener
 {
     private static final String TAG = "MapFragment";
 
-    private static final float DEFAULT_ZOOM = 15f;
+    private static final float DEFAULT_ZOOM = 17f;
     private static final int PERMS_CALL_CODE = 354;
+    private static final int PROXIMITY_RADIUS = 10000;
 
     private MapViewModel mapViewModel;
+
+
     private LocationManager locationManager;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        mapViewModel = ViewModelProviders.of(this).get(MapViewModel.class);
+        mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
         View root = inflater.inflate(R.layout.fragment_map, container, false);
         return root;
     }
@@ -115,6 +119,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         mMap = googleMap;
         getDeviceLocation();
         mMap.setOnPoiClickListener(this);
+
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
@@ -128,7 +133,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         } catch (Resources.NotFoundException e) {
             Log.e(TAG, "Can't find style. Error: ", e);
     }
+    }
 
+    private void addRestaurantsMarkers() {
+        String url = getUrl(currentLocation.getLatitude(), currentLocation.getLongitude(), "restaurant");
+        Object dataTransfer[] = new Object[2];
+        dataTransfer[0] = mMap;
+        dataTransfer[1] = url;
+
+        NearbyPlacesData nearbyPlacesData = new NearbyPlacesData();
+        nearbyPlacesData.execute(dataTransfer);
+    }
+    private String getUrl(double latitude, double longitude, String nearbyPlace){
+        StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        googlePlaceUrl.append("location=" + latitude + "," + longitude);
+        googlePlaceUrl.append("&radius=" + PROXIMITY_RADIUS);
+        googlePlaceUrl.append("&type=" + nearbyPlace);
+        googlePlaceUrl.append("&sensor=true");
+        googlePlaceUrl.append("&key=" + getString(R.string.google_api_key));
+
+        return googlePlaceUrl.toString();
     }
 
     private void initMap() {
@@ -150,12 +174,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                     public void onComplete(@NonNull Task task) {
                         if(task.isSuccessful()){
                             Log.d(TAG, "onComplete: found location : " + location.getResult().toString());
-                            Location currentLocation = (Location) task.getResult();
+                            currentLocation = (Location) task.getResult();
                             LatLng userLocation = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,DEFAULT_ZOOM));
                             mMap.setMyLocationEnabled(true);
                             mMap.getUiSettings().setMyLocationButtonEnabled(true);
                             mMap.getUiSettings().setCompassEnabled(true);
+                            addRestaurantsMarkers();
                         }
                         else{
                             Log.d(TAG, "onComplete: current location not found");
@@ -171,7 +196,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     @Override
     public void onLocationChanged(Location location) {
-
     }
 
     @Override
@@ -191,10 +215,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     @Override
     public void onPoiClick(PointOfInterest pointOfInterest) {
+        /*
         Toast.makeText(getApplicationContext(), "Clicked: " +
                                pointOfInterest.name + "\nPlace ID:" + pointOfInterest.placeId +
                                "\nLatitude:" + pointOfInterest.latLng.latitude +
                                " Longitude:" + pointOfInterest.latLng.longitude,
                        Toast.LENGTH_SHORT).show();
+
+         */
     }
 }
