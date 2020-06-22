@@ -22,10 +22,10 @@ public class DataParser
 
         try {
             if (!googlePlaceJSON.isNull("name")){
-                    placeName = googlePlaceJSON.getString("name");
+                placeName = googlePlaceJSON.getString("name");
             }
             if (!googlePlaceJSON.isNull("vicinity")){
-                placeName = googlePlaceJSON.getString("vicinity");
+                vicinity = googlePlaceJSON.getString("vicinity");
             }
             latitude = googlePlaceJSON.getJSONObject("geometry").getJSONObject("location").getString("lat");
             longitude = googlePlaceJSON.getJSONObject("geometry").getJSONObject("location").getString("lng");

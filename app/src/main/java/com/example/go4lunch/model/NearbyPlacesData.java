@@ -26,6 +26,7 @@ public class NearbyPlacesData extends AsyncTask<Object, String, String>
 {
     String googlePlacesData, url;
     Bitmap markerIcon;
+    List<HashMap<String, String>> nearbyPlacesList = null;
 
     @Override
     protected String doInBackground(Object... objects) {
@@ -44,7 +45,6 @@ public class NearbyPlacesData extends AsyncTask<Object, String, String>
 
     @Override
     protected void onPostExecute(String s) {
-        List<HashMap<String, String>> nearbyPlacesList = null;
         DataParser parser = new DataParser();
         nearbyPlacesList = parser.parse(s);
         addNearbyPlacesMarkers(nearbyPlacesList,markerIcon);
@@ -78,13 +78,14 @@ public class NearbyPlacesData extends AsyncTask<Object, String, String>
             LatLng latLng = new LatLng(lat,lng);
             markerOptions.position(latLng);
             markerOptions.title(placeName + " : " + vicinity);
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(mIcon,150,200,false);
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(mIcon,100,150,false);
             changeBitmapTintTo(scaledBitmap,Color.CYAN);
             mIcon = scaledBitmap;
             BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(mIcon);
 
             markerOptions.icon(icon);
             mMap.addMarker(markerOptions);
+            Log.i(TAG, "addNearbyPlacesMarkers: element "+i+":"+placeName+" "+vicinity+" "+lat+" "+lng);
         }
     }
 

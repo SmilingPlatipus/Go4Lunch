@@ -122,7 +122,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
         try {
             // Customise the styling of the base map using a JSON object defined
-            // in a raw resource file.
+            // in a raw resource file, removing businesses.
             boolean success = googleMap.setMapStyle(
                     MapStyleOptions.loadRawResourceStyle(
                             getApplicationContext(), R.raw.map_style));

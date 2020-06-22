@@ -43,7 +43,7 @@ public class WorkmateAdapter extends FirestoreRecyclerAdapter<Workmate, Workmate
     @NonNull
     @Override
     public WorkmateHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_recyclerview,parent,false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_workmates_recyclerview, parent, false);
         return new WorkmateHolder(v);
     }
 
