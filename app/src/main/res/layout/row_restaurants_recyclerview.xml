@@ -135,7 +135,8 @@
                 android:id="@+id/cardview_restaurant_pic"
                 android:layout_width="70dp"
                 android:layout_height="70dp"
-                android:layout_alignParentEnd="true" />
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/shape_restaurant_pic" />
 
         </RelativeLayout>
 

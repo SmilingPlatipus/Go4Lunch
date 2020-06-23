@@ -25,13 +25,10 @@ public class RestaurantsFragment extends Fragment
                              ViewGroup container, Bundle savedInstanceState) {
         restaurantsViewModel = new ViewModelProvider(this).get(RestaurantsViewModel.class);
         View root = inflater.inflate(R.layout.fragment_restaurants, container, false);
-        final TextView textView = root.findViewById(R.id.text_restaurants);
         restaurantsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>()
         {
             @Override
             public void onChanged(@Nullable String s) {
-                textView.setText(s);
-                Toast.makeText(getContext(),"Value of textView is "+ textView.getText(),Toast.LENGTH_SHORT).show();
             }
         });
         return root;

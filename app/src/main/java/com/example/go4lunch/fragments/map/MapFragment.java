@@ -3,6 +3,8 @@ package com.example.go4lunch.fragments.map;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -26,13 +28,20 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 
+import java.util.HashMap;
+import java.util.List;
+
+import static android.content.ContentValues.TAG;
 import static android.content.Context.LOCATION_SERVICE;
 import static com.example.go4lunch.activities.MainActivity.mFusedLocationProviderClient;
 import static com.example.go4lunch.activities.MainActivity.mMap;
@@ -136,7 +145,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     private void addRestaurantsMarkers() {
-        String url = getUrl(currentLocation.getLatitude(), currentLocation.getLongitude(), "restaurant");
+        String url = getPlacesSearchUrl(currentLocation.getLatitude(), currentLocation.getLongitude(), "restaurant");
         Object dataTransfer[] = new Object[2];
         dataTransfer[0] = mMap;
         dataTransfer[1] = url;
@@ -144,13 +153,61 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         NearbyPlacesData nearbyPlacesData = new NearbyPlacesData();
         nearbyPlacesData.execute(dataTransfer);
     }
-    private String getUrl(double latitude, double longitude, String nearbyPlace){
+
+    private static void changeBitmapTintTo(Bitmap myBitmap, int color){
+        int [] allpixels = new int [myBitmap.getHeight() * myBitmap.getWidth()];
+
+        myBitmap.getPixels(allpixels, 0, myBitmap.getWidth(), 0, 0, myBitmap.getWidth(), myBitmap.getHeight());
+
+        for(int i = 0; i < allpixels.length; i++)
+        {
+            if(allpixels[i] == Color.BLACK)
+            {
+                allpixels[i] = color;
+            }
+        }
+        myBitmap.setPixels(allpixels,0,myBitmap.getWidth(),0, 0, myBitmap.getWidth(),myBitmap.getHeight());
+    }
+
+    public static void addNearbyPlacesMarkers(List<HashMap<String, String>> nPlaceList, Bitmap mIcon){
+        for (int placeCount =0;placeCount < nPlaceList.size();placeCount++){
+            MarkerOptions markerOptions = new MarkerOptions();
+            HashMap<String, String> googlePlace = nPlaceList.get(placeCount);
+
+            String placeName = googlePlace.get("place_name");
+            String vicinity = googlePlace.get("vicinity");
+            double lat = Double.parseDouble(googlePlace.get("lat"));
+            double lng = Double.parseDouble(googlePlace.get("lng"));
+
+            LatLng latLng = new LatLng(lat,lng);
+            markerOptions.position(latLng);
+            markerOptions.title(placeName + " : " + vicinity);
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(mIcon,100,150,false);
+            changeBitmapTintTo(scaledBitmap, Color.CYAN);
+            mIcon = scaledBitmap;
+            BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(mIcon);
+
+            markerOptions.icon(icon);
+            mMap.addMarker(markerOptions);
+            Log.i(TAG, "addNearbyPlacesMarkers: element "+placeCount+":"+placeName+" "+vicinity+" "+lat+" "+lng);
+        }
+    }
+
+    private String getPlacesSearchUrl(double latitude, double longitude, String nearbyPlace){
         StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         googlePlaceUrl.append("location=" + latitude + "," + longitude);
         googlePlaceUrl.append("&radius=" + PROXIMITY_RADIUS);
         googlePlaceUrl.append("&type=" + nearbyPlace);
         googlePlaceUrl.append("&sensor=true");
         googlePlaceUrl.append("&key=" + getString(R.string.google_api_key));
+
+        return googlePlaceUrl.toString();
+    }
+
+    public static String getPlacesSearchNextPageUrl(String nextPageToken){
+        StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        googlePlaceUrl.append("&key=" + getApplicationContext().getString(R.string.google_api_key));
+        googlePlaceUrl.append("&pagetoken=" + nextPageToken);
 
         return googlePlaceUrl.toString();
     }

@@ -12,6 +12,8 @@ import java.util.List;
 
 public class DataParser
 {
+    String nextPageToken = null;
+
     private HashMap<String, String> getPlace(JSONObject googlePlaceJSON){
         HashMap<String, String> googlePlacesMap = new HashMap<>();
         String placeName = "-NA-";
@@ -68,10 +70,12 @@ public class DataParser
 
         try {
             jsonObject = new JSONObject(jsonData);
+            if (!jsonObject.isNull("next_page_token"))
+                nextPageToken = jsonObject.getString("next_page_token");
             jsonArray = jsonObject.getJSONArray("results");
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return getPlaces(jsonArray);
     }
-}
+    }

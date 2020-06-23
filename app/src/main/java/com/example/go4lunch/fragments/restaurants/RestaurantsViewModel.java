@@ -11,7 +11,6 @@ public class RestaurantsViewModel extends ViewModel
 
     public RestaurantsViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("Can be modified");
     }
 
     public LiveData<String> getText() {
