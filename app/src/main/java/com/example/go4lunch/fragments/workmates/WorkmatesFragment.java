@@ -22,14 +22,12 @@ import static com.example.go4lunch.activities.MainActivity.options;
 public class WorkmatesFragment extends Fragment
 {
 
-    private WorkmatesViewModel workmatesViewModel;
 
     // Workmates RecyclerView
     private RecyclerView mWorkmates;
     private FirestoreRecyclerAdapter adapter;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        workmatesViewModel = new ViewModelProvider(this).get(WorkmatesViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_workmates, container, false);
 
 
@@ -42,14 +40,6 @@ public class WorkmatesFragment extends Fragment
         mWorkmates.setAdapter(adapter);
 
 
-
-        workmatesViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>()
-        {
-            @Override
-            public void onChanged(@Nullable String s) {
-
-            }
-        });
         return root;
     }
 

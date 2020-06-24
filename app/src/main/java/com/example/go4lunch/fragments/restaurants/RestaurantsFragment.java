@@ -18,19 +18,9 @@ import com.example.go4lunch.R;
 
 public class RestaurantsFragment extends Fragment
 {
-
-    private RestaurantsViewModel restaurantsViewModel;
-
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        restaurantsViewModel = new ViewModelProvider(this).get(RestaurantsViewModel.class);
         View root = inflater.inflate(R.layout.fragment_restaurants, container, false);
-        restaurantsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>()
-        {
-            @Override
-            public void onChanged(@Nullable String s) {
-            }
-        });
         return root;
     }
 }

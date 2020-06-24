@@ -55,17 +55,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     private static final int PERMS_CALL_CODE = 354;
     private static final int PROXIMITY_RADIUS = 10000;
 
-
-
-    private MapViewModel mapViewModel;
-
-
     private LocationManager locationManager;
 
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_map, container, false);
         return root;
     }
