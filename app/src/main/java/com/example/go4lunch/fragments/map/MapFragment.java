@@ -22,7 +22,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.go4lunch.R;
-import com.example.go4lunch.model.NearbyPlacesData;
+import com.example.go4lunch.model.NearbyPlacesSearch;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,20 +41,21 @@ import com.google.android.gms.tasks.Task;
 import java.util.HashMap;
 import java.util.List;
 
-import static android.content.ContentValues.TAG;
 import static android.content.Context.LOCATION_SERVICE;
 import static com.example.go4lunch.activities.MainActivity.mFusedLocationProviderClient;
 import static com.example.go4lunch.activities.MainActivity.mMap;
 import static com.example.go4lunch.activities.MainActivity.currentLocation;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnPoiClickListener
+public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnPoiClickListener, NearbyPlacesSearch.NearbyPlacesSearchResponse
 {
     private static final String TAG = "MapFragment";
 
     private static final float DEFAULT_ZOOM = 17f;
     private static final int PERMS_CALL_CODE = 354;
     private static final int PROXIMITY_RADIUS = 10000;
+
+
 
     private MapViewModel mapViewModel;
 
@@ -150,8 +151,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         dataTransfer[0] = mMap;
         dataTransfer[1] = url;
 
-        NearbyPlacesData nearbyPlacesData = new NearbyPlacesData();
-        nearbyPlacesData.execute(dataTransfer);
+        NearbyPlacesSearch nearbyPlacesSearch = new NearbyPlacesSearch(this);
+        nearbyPlacesSearch.taskCount = 1;
+        nearbyPlacesSearch.execute(dataTransfer);
     }
 
     private static void changeBitmapTintTo(Bitmap myBitmap, int color){
@@ -280,5 +282,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                        Toast.LENGTH_SHORT).show();
 
          */
+    }
+
+    @Override
+    public void onProcessFinished(String nextPageToken) {
+        if (nextPageToken != null) {
+            Object dataTransfer[] = new Object[2];
+            dataTransfer[0] = mMap;
+            dataTransfer[1] = getPlacesSearchNextPageUrl(nextPageToken);
+
+            NearbyPlacesSearch nearbyPlacesSearch = new NearbyPlacesSearch(this);
+            nearbyPlacesSearch.execute(dataTransfer);
+        }
+        else
+            addNearbyPlacesMarkers(NearbyPlacesSearch.nearbyPlacesList, NearbyPlacesSearch.markerIcon);
     }
 }
