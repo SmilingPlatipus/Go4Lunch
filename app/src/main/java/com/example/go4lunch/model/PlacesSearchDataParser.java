@@ -10,9 +10,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DataParser
+import javax.annotation.Nullable;
+
+/***************************************************************************************************************************************************************************************************************************
+*                                                                                                                                                                                                                          *
+*                                          This class purpose is to parse a Google Places Search page containing results as a JSON file                                                                                    *
+*                                                                                                                                                                                                                          *
+****************************************************************************************************************************************************************************************************************************/
+public class PlacesSearchDataParser
 {
     String nextPageToken = null;
+
+    // Parsing each place details, fetching all informations needed
 
     private HashMap<String, String> getPlace(JSONObject googlePlaceJSON){
         HashMap<String, String> googlePlacesMap = new HashMap<>();
@@ -20,7 +29,9 @@ public class DataParser
         String vicinity = "-NA-";
         String latitude = "";
         String longitude = "";
-        String reference = "";
+        String placeId = "";
+        String photoReference = "";
+        String photoWidth = "";
 
         try {
             if (!googlePlaceJSON.isNull("name")){
@@ -32,20 +43,29 @@ public class DataParser
             latitude = googlePlaceJSON.getJSONObject("geometry").getJSONObject("location").getString("lat");
             longitude = googlePlaceJSON.getJSONObject("geometry").getJSONObject("location").getString("lng");
 
-            reference = googlePlaceJSON.getString("reference");
+
+            placeId = googlePlaceJSON.getString("place_id");
+            if (!googlePlaceJSON.getJSONArray("photos").getJSONObject(0).isNull("photo_reference")) {
+                photoReference = googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
+                photoWidth = googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("width");
+            }
 
             // Preparing the GooglePlacesMap to return
             googlePlacesMap.put("place_name",placeName);
             googlePlacesMap.put("vicinity",vicinity);
             googlePlacesMap.put("lat",latitude);
             googlePlacesMap.put("lng",longitude);
-            googlePlacesMap.put("reference",reference);
+            googlePlacesMap.put("place_id",placeId);
+            googlePlacesMap.put("photo_reference",photoReference);
+            googlePlacesMap.put("width", photoWidth);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return googlePlacesMap;
     }
+
+    // Parsing all places in JSON results
 
     private List<HashMap<String, String>> getPlaces(JSONArray jsonArray){
         int count = jsonArray.length();
@@ -63,6 +83,8 @@ public class DataParser
         }
         return placesList;
     }
+
+    // Parsing entire JSON file, fetching for "next_page_token" and "results" tags
 
     public List<HashMap<String, String>> parse(String jsonData) {
         JSONArray jsonArray = null;

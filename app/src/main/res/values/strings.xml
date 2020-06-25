@@ -34,4 +34,7 @@
     <string name="workmate_not_chosen">hasn\'t decided yet</string>
     <string name="log_out">You have been logged out</string>
 
+    <!-- Custom Marker URL -->
+    <string name="custom_marker_url" translatable="false">https://cdn.pixabay.com/photo/2017/02/17/11/52/icon-2073973_960_720.png</string>
+
 </resources>
