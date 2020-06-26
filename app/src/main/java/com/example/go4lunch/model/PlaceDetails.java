@@ -6,6 +6,9 @@ import android.util.Log;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.HashMap;
+
+import static com.example.go4lunch.fragments.map.MapFragment.nearbyRestaurantList;
 
 
 
@@ -34,6 +37,7 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
 
         try {
             googlePlaceDetails = downloadUrl.readUrl(placeDetailsRequest);
+            // Todo : this request isn't working fine :
             photoUrl = downloadUrl.readUrl(photoReference);
         } catch (IOException e) {
             e.printStackTrace();
@@ -46,7 +50,11 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
     protected void onPostExecute(String s) {
         PlacesDetailsDataParser parser = new PlacesDetailsDataParser();
         try {
-            parser.getRestaurantDetails(s);
+
+            nearbyRestaurantList.add(placeCount-1,parser.getRestaurantDetails(s));
+            HashMap<String, String> photoRow = new HashMap<>();
+            photoRow.put("photo_url",photoUrl);
+            nearbyRestaurantList.add(placeCount-1,photoRow);
         } catch (JSONException e) {
             e.printStackTrace();
         }

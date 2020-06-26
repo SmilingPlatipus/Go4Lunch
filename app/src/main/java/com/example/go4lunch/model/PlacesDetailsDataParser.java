@@ -4,6 +4,7 @@ package com.example.go4lunch.model;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 
 
 /***************************************************************************************************************************************************************************************************************************
@@ -14,7 +15,9 @@ import org.json.JSONObject;
 
 public class PlacesDetailsDataParser
 {
-    public String getRestaurantDetails(String jsonData) throws JSONException {
+    public HashMap<String, String> getRestaurantDetails(String jsonData) throws JSONException {
+        HashMap<String, String> phoneRow = new HashMap<>();
+
         JSONObject jsonObject = null;
 
         String phoneNumber = "";
@@ -29,6 +32,8 @@ public class PlacesDetailsDataParser
             phoneNumber = jsonObject.getJSONObject("result").getString("formatted_phone_number");
         }
 
-        return phoneNumber;
+        phoneRow.put("phone_number",phoneNumber);
+
+        return phoneRow;
     }
 }
