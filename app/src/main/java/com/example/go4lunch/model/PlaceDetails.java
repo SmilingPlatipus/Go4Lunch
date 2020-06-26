@@ -38,7 +38,7 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
         try {
             googlePlaceDetails = downloadUrl.readUrl(placeDetailsRequest);
             // Todo : this request isn't working fine :
-            //photoUrl = downloadUrl.readUrl(photoReference);
+            photoUrl = downloadUrl.readUrl(photoReference);
         } catch (IOException e) {
             e.printStackTrace();
         }
