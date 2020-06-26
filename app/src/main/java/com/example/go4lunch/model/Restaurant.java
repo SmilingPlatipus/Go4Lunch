@@ -8,7 +8,7 @@ public class Restaurant
     String placeId;
     String name;
     String address;
-    @Nullable String photoReference;
+    String phoneNumber;
     @Nullable String websiteUrl;
     @Nullable String imageUrl;
 
@@ -16,7 +16,6 @@ public class Restaurant
     int distanceFromUser;
     int workmatesCount;
     int rating;
-    int phoneNumber;
 
 
     // Todo : handle opening hours
@@ -56,14 +55,6 @@ public class Restaurant
         this.address = address;
     }
 
-    @Nullable
-    public String getPhotoReference() {
-        return photoReference;
-    }
-
-    public void setPhotoReference(@Nullable String photoReference) {
-        this.photoReference = photoReference;
-    }
 
     @Nullable
     public String getWebsiteUrl() {
@@ -115,11 +106,11 @@ public class Restaurant
         this.rating = rating;
     }
 
-    public int getPhoneNumber() {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(int phoneNumber) {
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 }

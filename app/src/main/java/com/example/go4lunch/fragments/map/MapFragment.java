@@ -21,7 +21,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.go4lunch.R;
-import com.example.go4lunch.model.NearbyPlacesSearch;
+import com.example.go4lunch.model.NearbyRestaurants;
+import com.example.go4lunch.model.PlaceDetails;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -45,7 +46,7 @@ import static com.example.go4lunch.activities.MainActivity.mMap;
 import static com.example.go4lunch.activities.MainActivity.currentLocation;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnPoiClickListener, NearbyPlacesSearch.NearbyPlacesSearchResponse
+public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnPoiClickListener, NearbyRestaurants.NearbyRestaurantsResponse
 {
     private static final String TAG = "MapFragment";
 
@@ -54,9 +55,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     private static final int PROXIMITY_RADIUS = 10000;
 
     private LocationManager locationManager;
-    public static String customMarkerUrl;
 
-    public static List<HashMap<String, String>> nearbyPlacesList = new ArrayList();
+    public static List<HashMap<String, String>> nearbyRestaurantList = new ArrayList();
 
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -138,85 +138,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
     }
 
-    private void getRestaurantsLocations() {
-        String url = getPlacesSearchUrl(currentLocation.getLatitude(), currentLocation.getLongitude(), "restaurant");
-        Object dataTransfer[] = new Object[1];
-        dataTransfer[0] = url;
-
-        NearbyPlacesSearch nearbyPlacesSearch = new NearbyPlacesSearch(this);
-        nearbyPlacesSearch.pageCount = 1;
-        Log.i(TAG, "getRestaurantsLocations: task : " + NearbyPlacesSearch.pageCount + " executing...");
-        nearbyPlacesSearch.execute(dataTransfer);
-    }
-
-    private void getCustomMarker(String url){
-        customMarkerUrl = getString(R.string.custom_marker_url);
-
-        // Todo : call CustomMarkerDownload Asynctask
-    }
-
-    private static void changeBitmapTintTo(Bitmap myBitmap, int color){
-        int [] allpixels = new int [myBitmap.getHeight() * myBitmap.getWidth()];
-
-        myBitmap.getPixels(allpixels, 0, myBitmap.getWidth(), 0, 0, myBitmap.getWidth(), myBitmap.getHeight());
-
-        for(int i = 0; i < allpixels.length; i++)
-        {
-            if(allpixels[i] == Color.BLACK)
-            {
-                allpixels[i] = color;
-            }
-        }
-        myBitmap.setPixels(allpixels,0,myBitmap.getWidth(),0, 0, myBitmap.getWidth(),myBitmap.getHeight());
-    }
-
-    public static void addCustomRestaurantsMarkers(List<HashMap<String, String>> nPlaceList, Bitmap mIcon){
-        for (int placeCount =0;placeCount < nPlaceList.size();placeCount++){
-
-            MarkerOptions markerOptions = new MarkerOptions();
-            HashMap<String, String> googlePlace = nPlaceList.get(placeCount);
-
-            String placeName = googlePlace.get("place_name");
-            String vicinity = googlePlace.get("vicinity");
-            double lat = Double.parseDouble(googlePlace.get("lat"));
-            double lng = Double.parseDouble(googlePlace.get("lng"));
-
-            LatLng latLng = new LatLng(lat,lng);
-            markerOptions.position(latLng);
-            markerOptions.title(placeName + " : " + vicinity);
-            /*
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(mIcon,100,150,false);
-            changeBitmapTintTo(scaledBitmap, Color.CYAN);
-            mIcon = scaledBitmap;
-            BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(mIcon);
-
-            markerOptions.icon(icon);
-            mMap.addMarker(markerOptions);
-
-             */
-            Log.i(TAG, "addNearbyPlacesMarkers: element "+placeCount+":"+placeName+" "+vicinity+" "+lat+" "+lng);
-        }
-    }
-
-    private String getPlacesSearchUrl(double latitude, double longitude, String nearbyPlace){
-        StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-        googlePlaceUrl.append("location=" + latitude + "," + longitude);
-        googlePlaceUrl.append("&radius=" + PROXIMITY_RADIUS);
-        googlePlaceUrl.append("&type=" + nearbyPlace);
-        googlePlaceUrl.append("&sensor=true");
-        googlePlaceUrl.append("&key=" + getString(R.string.google_api_key));
-
-        return googlePlaceUrl.toString();
-    }
-
-    public static String getPlacesSearchNextPageUrl(String nextPageToken){
-        StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-        googlePlaceUrl.append("&key=" + getApplicationContext().getString(R.string.google_api_key));
-        googlePlaceUrl.append("&pagetoken=" + nextPageToken);
-
-        return googlePlaceUrl.toString();
-    }
-
     private void initMap() {
         Log.d(TAG, "initMap: initializing map");
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -287,17 +208,122 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
          */
     }
 
+    private void getRestaurantsLocations() {
+        String url = getPlacesSearchUrl(currentLocation.getLatitude(), currentLocation.getLongitude(), "restaurant");
+        Object dataTransfer[] = new Object[2];
+        dataTransfer[0] = getApplicationContext().getString(R.string.google_api_key);
+        dataTransfer[1] = url;
+
+        NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
+        NearbyRestaurants.pageCount = 1;
+        Log.i(TAG, "getRestaurantsLocations: task : " + NearbyRestaurants.pageCount + " executing...");
+        nearbyRestaurants.execute(dataTransfer);
+    }
+
+    public static String getCustomMarkerUrl(){
+        return getApplicationContext().getString(R.string.custom_marker_url);
+    }
+
+    public static void changeBitmapTintTo(Bitmap myBitmap, int color){
+        int [] allpixels = new int [myBitmap.getHeight() * myBitmap.getWidth()];
+
+        myBitmap.getPixels(allpixels, 0, myBitmap.getWidth(), 0, 0, myBitmap.getWidth(), myBitmap.getHeight());
+
+        for(int i = 0; i < allpixels.length; i++)
+        {
+            if(allpixels[i] == Color.BLACK)
+            {
+                allpixels[i] = color;
+            }
+        }
+        myBitmap.setPixels(allpixels,0,myBitmap.getWidth(),0, 0, myBitmap.getWidth(),myBitmap.getHeight());
+    }
+
+    public static void addCustomRestaurantsMarkers(List<HashMap<String, String>> nPlaceList, Bitmap mIcon){
+        for (int placeCount =0;placeCount < nPlaceList.size();placeCount++){
+
+            MarkerOptions markerOptions = new MarkerOptions();
+            HashMap<String, String> googlePlace = nPlaceList.get(placeCount);
+
+            String placeName = googlePlace.get("place_name");
+            String vicinity = googlePlace.get("vicinity");
+            double lat = Double.parseDouble(googlePlace.get("lat"));
+            double lng = Double.parseDouble(googlePlace.get("lng"));
+
+            LatLng latLng = new LatLng(lat,lng);
+            markerOptions.position(latLng);
+            markerOptions.title(placeName + " : " + vicinity);
+            // Todo : change bitmap directly into NearbyRestaurants
+            /*
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(mIcon,100,150,false);
+            changeBitmapTintTo(scaledBitmap, Color.CYAN);
+            mIcon = scaledBitmap;
+            BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(mIcon);
+
+            markerOptions.icon(icon);
+            mMap.addMarker(markerOptions);
+
+             */
+            Log.i(TAG, "addNearbyPlacesMarkers: element "+placeCount+":"+placeName+" "+vicinity+" "+lat+" "+lng);
+        }
+    }
+
+    private String getPlacesSearchUrl(double latitude, double longitude, String nearbyPlace){
+        StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        googlePlaceUrl.append("location=" + latitude + "," + longitude);
+        googlePlaceUrl.append("&radius=" + PROXIMITY_RADIUS);
+        googlePlaceUrl.append("&type=" + nearbyPlace);
+        googlePlaceUrl.append("&sensor=true");
+        googlePlaceUrl.append("&key=" + getString(R.string.google_api_key));
+
+        return googlePlaceUrl.toString();
+    }
+
+    public static String getPlacesSearchNextPageUrl(String nextPageToken){
+        StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        googlePlaceUrl.append("&key=" + getApplicationContext().getString(R.string.google_api_key));
+        googlePlaceUrl.append("&pagetoken=" + nextPageToken);
+
+        return googlePlaceUrl.toString();
+    }
+
+    private String makePlacesDetailsRequest(String placeId){
+        StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/details/json?");
+        googlePlaceUrl.append("&key=" + getApplicationContext().getString(R.string.google_api_key));
+        googlePlaceUrl.append("&place_id=" + placeId);
+
+        return googlePlaceUrl.toString();
+    }
+
+    private String makePlacesPhotoRequest(String photoReference, String maxWidth){
+        StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo?");
+        googlePlaceUrl.append("maxwidth=" + maxWidth);
+        googlePlaceUrl.append("&photoreference=" + photoReference);
+        googlePlaceUrl.append("&key=" + getApplicationContext().getString(R.string.google_api_key));
+
+        return googlePlaceUrl.toString();
+    }
+
     // Callback method from NearbyPlacesSearch Asynctask
     @Override
-    public void onNearbyPlacesSearchFinished(String nextPageToken) {
-        Log.i(TAG, "onProcessFinished: task : " + NearbyPlacesSearch.pageCount + " ending...");
+    public void onNearbyRestaurantsCompleted(String nextPageToken) {
+
+         // Making Places Details request to get more informations about all restaurants treated in previous thread
+        for (HashMap<String, String> currentRestaurant : nearbyRestaurantList) {
+            Object transferObject[] = new Object[2];
+            transferObject[0] = (String) makePlacesDetailsRequest(currentRestaurant.get("place_id"));
+            transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"),currentRestaurant.get("width"));
+            PlaceDetails placesDetails = new PlaceDetails();
+            placesDetails.execute(transferObject);
+        }
+         Log.i(TAG, "onProcessFinished: task : " + NearbyRestaurants.pageCount + " ending...");
         if (nextPageToken != null) {
             Object dataTransfer[] = new Object[1];
             dataTransfer[0] = getPlacesSearchNextPageUrl(nextPageToken);
 
-            NearbyPlacesSearch nearbyPlacesSearch = new NearbyPlacesSearch(this);
-            Log.i(TAG, "onProcessFinished: task : " + NearbyPlacesSearch.pageCount + " executing...");
-            nearbyPlacesSearch.execute(dataTransfer);
+            NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
+            Log.i(TAG, "onProcessFinished: task : " + NearbyRestaurants.pageCount + " executing...");
+            nearbyRestaurants.execute(dataTransfer);
         }
     }
 }

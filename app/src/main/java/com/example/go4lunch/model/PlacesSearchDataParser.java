@@ -1,7 +1,5 @@
 package com.example.go4lunch.model;
 
-// This is the parser class, managing to decode JSON files
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.annotation.Nullable;
 
 /***************************************************************************************************************************************************************************************************************************
 *                                                                                                                                                                                                                          *
@@ -56,8 +53,10 @@ public class PlacesSearchDataParser
             googlePlacesMap.put("lat",latitude);
             googlePlacesMap.put("lng",longitude);
             googlePlacesMap.put("place_id",placeId);
-            googlePlacesMap.put("photo_reference",photoReference);
             googlePlacesMap.put("width", photoWidth);
+            googlePlacesMap.put("photo_reference",photoReference);
+
+
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -100,4 +99,5 @@ public class PlacesSearchDataParser
         }
         return getPlaces(jsonArray);
     }
-    }
+
+}
