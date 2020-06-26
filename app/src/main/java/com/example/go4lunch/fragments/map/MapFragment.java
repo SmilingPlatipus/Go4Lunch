@@ -309,12 +309,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     public void onNearbyRestaurantsCompleted(String nextPageToken) {
 
          // Making Places Details request to get more informations about all restaurants treated in previous thread
+        int restaurantCount = 0;
         for (HashMap<String, String> currentRestaurant : nearbyRestaurantList) {
-            Object transferObject[] = new Object[2];
+            Object transferObject[] = new Object[3];
             transferObject[0] = (String) makePlacesDetailsRequest(currentRestaurant.get("place_id"));
             transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"),currentRestaurant.get("width"));
+            transferObject[2] = (int) restaurantCount;
             PlaceDetails placesDetails = new PlaceDetails();
             placesDetails.execute(transferObject);
+            restaurantCount++;
         }
          Log.i(TAG, "onProcessFinished: task : " + NearbyRestaurants.pageCount + " ending...");
         if (nextPageToken != null) {

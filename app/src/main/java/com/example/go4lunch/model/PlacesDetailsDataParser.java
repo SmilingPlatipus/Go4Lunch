@@ -15,25 +15,17 @@ import java.util.HashMap;
 
 public class PlacesDetailsDataParser
 {
-    public HashMap<String, String> getRestaurantDetails(String jsonData) throws JSONException {
+    public String getRestaurantDetails(String jsonData) throws JSONException {
         HashMap<String, String> phoneRow = new HashMap<>();
 
-        JSONObject jsonObject = null;
-
         String phoneNumber = "";
-
-        try {
-            jsonObject.getJSONObject(jsonData);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        JSONObject jsonObject = new JSONObject(jsonData);
 
         if (!jsonObject.getJSONObject("result").getString("formatted_phone_number").isEmpty()) {
             phoneNumber = jsonObject.getJSONObject("result").getString("formatted_phone_number");
         }
 
-        phoneRow.put("phone_number",phoneNumber);
 
-        return phoneRow;
+        return phoneNumber;
     }
 }

@@ -25,13 +25,13 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
     String googlePlaceDetails;
     String photoReference;
     String photoUrl;
-    public static int placeCount = 0;
+    int placeCount;
 
     @Override
     protected String doInBackground(Object... objects) {
-        placeCount++;
         placeDetailsRequest = (String) objects[0];
         photoReference = (String) objects[1];
+        placeCount = (int) objects[2];
         DownloadUrl downloadUrl = new DownloadUrl();
         Log.i(TAG, "doInBackground: treating place number : " + placeCount);
 
@@ -50,11 +50,10 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
     protected void onPostExecute(String s) {
         PlacesDetailsDataParser parser = new PlacesDetailsDataParser();
         try {
-
-            nearbyRestaurantList.add(placeCount-1,parser.getRestaurantDetails(s));
-            //HashMap<String, String> photoRow = new HashMap<>();
-            //photoRow.put("photo_url",photoUrl);
-            //nearbyRestaurantList.add(placeCount-1,photoRow);
+            HashMap<String, String> buffer = nearbyRestaurantList.get(placeCount);
+            buffer.put("phone_number", parser.getRestaurantDetails(s));
+            buffer.put("photo_url",photoUrl);
+            nearbyRestaurantList.add(placeCount, buffer);
         } catch (JSONException e) {
             e.printStackTrace();
         }
