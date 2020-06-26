@@ -23,22 +23,26 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
     private static final String TAG = "PlaceDetails : ";
     String placeDetailsRequest;
     String googlePlaceDetails;
-    String photoReference;
-    String photoUrl;
+    String placePhotoRequest;
+    String photoUrl = null;
     int placeCount;
 
     @Override
     protected String doInBackground(Object... objects) {
         placeDetailsRequest = (String) objects[0];
-        photoReference = (String) objects[1];
+        if ( objects[1] != null)
+            placePhotoRequest = (String) objects[1];
+        else
+            placePhotoRequest = null;
         placeCount = (int) objects[2];
         DownloadUrl downloadUrl = new DownloadUrl();
         Log.i(TAG, "doInBackground: treating place number : " + placeCount);
 
         try {
             googlePlaceDetails = downloadUrl.readUrl(placeDetailsRequest);
-            // Todo : this request isn't working fine :
-            photoUrl = downloadUrl.readUrl(photoReference);
+
+            if (placePhotoRequest != null)
+                photoUrl = downloadUrl.readUrl(placePhotoRequest);
         } catch (IOException e) {
             e.printStackTrace();
         }

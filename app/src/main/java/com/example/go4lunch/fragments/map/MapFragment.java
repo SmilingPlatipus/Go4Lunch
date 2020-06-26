@@ -313,7 +313,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         for (HashMap<String, String> currentRestaurant : nearbyRestaurantList) {
             Object transferObject[] = new Object[3];
             transferObject[0] = (String) makePlacesDetailsRequest(currentRestaurant.get("place_id"));
-            transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"),currentRestaurant.get("width"));
+            if (currentRestaurant.get("photo_reference") != null && currentRestaurant.get("width") != null)
+                transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"),currentRestaurant.get("width"));
+            else
+                transferObject[1] = null;
             transferObject[2] = (int) restaurantCount;
             PlaceDetails placesDetails = new PlaceDetails();
             placesDetails.execute(transferObject);
