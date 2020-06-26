@@ -320,7 +320,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         if (nextPageToken != null) {
             Object dataTransfer[] = new Object[2];
             dataTransfer[0] = getApplicationContext().getString(R.string.google_api_key);
-            dataTransfer[0] = getPlacesSearchNextPageUrl(nextPageToken);
+            dataTransfer[1] = getPlacesSearchNextPageUrl(nextPageToken);
 
             NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
             Log.i(TAG, "onProcessFinished: task : " + NearbyRestaurants.pageCount + " executing...");
