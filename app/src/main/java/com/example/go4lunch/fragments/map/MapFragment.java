@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import com.example.go4lunch.R;
 import com.example.go4lunch.model.NearbyRestaurants;
 import com.example.go4lunch.model.PlaceDetails;
+import com.example.go4lunch.model.Restaurant;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -313,10 +314,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         for (HashMap<String, String> currentRestaurant : nearbyRestaurantList) {
             Object transferObject[] = new Object[3];
             transferObject[0] = (String) makePlacesDetailsRequest(currentRestaurant.get("place_id"));
+            /*
             if (currentRestaurant.get("photo_reference") != null && currentRestaurant.get("width") != null)
                 transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"),currentRestaurant.get("width"));
             else
                 transferObject[1] = null;
+
+             */
             transferObject[2] = (int) restaurantCount;
             PlaceDetails placesDetails = new PlaceDetails();
             placesDetails.execute(transferObject);

@@ -23,6 +23,20 @@ public class Restaurant
     public Restaurant() {
     }
 
+    public Restaurant(String id, String placeId, String name, String address, String phoneNumber, @Nullable String websiteUrl, @Nullable String imageUrl, int photoMaxWidth, int distanceFromUser, int workmatesCount, int rating) {
+        this.id = id;
+        this.placeId = placeId;
+        this.name = name;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.websiteUrl = websiteUrl;
+        this.imageUrl = imageUrl;
+        this.photoMaxWidth = photoMaxWidth;
+        this.distanceFromUser = distanceFromUser;
+        this.workmatesCount = workmatesCount;
+        this.rating = rating;
+    }
+
     public String getId() {
         return id;
     }

@@ -32,7 +32,6 @@ public class NearbyRestaurants extends AsyncTask<Object, Void, String>
     public NearbyRestaurantsResponse callback = null;
 
     public NearbyRestaurants(NearbyRestaurantsResponse callback) {
-        pageCount++;
         Log.i(TAG, "task " + pageCount + " created");
         this.callback = callback;
     }

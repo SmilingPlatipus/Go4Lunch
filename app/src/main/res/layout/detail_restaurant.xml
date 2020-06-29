@@ -24,8 +24,126 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/detail_restaurant_pic"
+                android:backgroundTint="@color/colorPrimaryDark2">
+
+                <LinearLayout
+                    android:id="@+id/detail_restaurant_layout_infos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:weightSum="2">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/detail_restaurant_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="Le zinc"
+                            android:textSize="24sp" />
+
+                        <ImageView
+                            android:id="@+id/detail_restaurant_star1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="10dp"
+                            android:tint="#FFE500"
+                            android:visibility="visible"
+                            app:srcCompat="@drawable/ic_baseline_star_24" />
+
+                        <ImageView
+                            android:id="@+id/detail_restaurant_star2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="10dp"
+                            android:tint="#FFE500"
+                            android:visibility="visible"
+                            app:srcCompat="@drawable/ic_baseline_star_24" />
+
+                        <ImageView
+                            android:id="@+id/detail_restaurant_star3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="10dp"
+                            android:tint="#FFE500"
+                            android:visibility="visible"
+                            app:srcCompat="@drawable/ic_baseline_star_24" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginBottom="20dp"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:id="@+id/detail_restaurant_address"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="12 rue du Faubourd Poissonière"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
 
 
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_below="@id/detail_restaurant_layout_infos"
+                    android:weightSum="3">
+
+                    <Button
+                        android:id="@+id/detail_restaurant_phone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawableTop="@drawable/ic_baseline_phone_24"
+                        android:text="@string/detail_restaurant_phone"
+                        app:strokeColor="@color/colorPrimary2" />
+
+                    <Button
+                        android:id="@+id/detail_restaurant_like"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawableTop="@drawable/ic_baseline_star_24"
+                        android:text="@string/detail_restaurant_like"
+                        app:strokeColor="@color/colorPrimaryDark2" />
+
+                    <Button
+                        android:id="@+id/detail_restaurant_website"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:drawableTop="@drawable/ic_baseline_language_24"
+                        android:text="@string/detail_restaurant_website"
+                        app:strokeColor="@color/colorPrimaryDark2" />
+
+                </LinearLayout>
+
+
+
+            </RelativeLayout>
         </RelativeLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

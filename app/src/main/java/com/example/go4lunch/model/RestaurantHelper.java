@@ -17,8 +17,7 @@ public class RestaurantHelper
 
     // --- CREATE ---
 
-    public static Task<Void> createUser(String uid, String username, String urlPicture) {
-        // Todo : real constructor call, with real informations
+    public static Task<Void> createRestaurant(String uid, String restaurantName, String urlPicture) {
         Restaurant restaurantToCreate = new Restaurant();
         return RestaurantHelper.getRestaurantsCollection().document(uid).set(restaurantToCreate);
     }
@@ -32,17 +31,11 @@ public class RestaurantHelper
     // --- UPDATE ---
 
     public static Task<Void> updateRestaurantName(String restaurantName, String id) {
-        return RestaurantHelper.getRestaurantsCollection().document(id).update("username", restaurantName);
+        return RestaurantHelper.getRestaurantsCollection().document(id).update("name", restaurantName);
     }
 
     public static Task<Void> updateIsMentor(String uid, Boolean isMentor) {
         return RestaurantHelper.getRestaurantsCollection().document(uid).update("isMentor", isMentor);
-    }
-
-    // --- DELETE ---
-
-    public static Task<Void> deleteUser(String uid) {
-        return RestaurantHelper.getRestaurantsCollection().document(uid).delete();
     }
 
 }

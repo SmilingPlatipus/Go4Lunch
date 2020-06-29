@@ -25,7 +25,7 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
     String googlePlaceDetails;
     String placePhotoRequest;
     String photoUrl = null;
-    int placeCount;
+    int currentIndex;
 
     @Override
     protected String doInBackground(Object... objects) {
@@ -34,15 +34,17 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
             placePhotoRequest = (String) objects[1];
         else
             placePhotoRequest = null;
-        placeCount = (int) objects[2];
+        currentIndex = (int) objects[2];
         DownloadUrl downloadUrl = new DownloadUrl();
-        Log.i(TAG, "doInBackground: treating place number : " + placeCount);
+        Log.i(TAG, "doInBackground: treating place number : " + currentIndex);
 
         try {
             googlePlaceDetails = downloadUrl.readUrl(placeDetailsRequest);
-
+/*
             if (placePhotoRequest != null)
                 photoUrl = downloadUrl.readUrl(placePhotoRequest);
+
+ */
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,10 +56,13 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
     protected void onPostExecute(String s) {
         PlacesDetailsDataParser parser = new PlacesDetailsDataParser();
         try {
-            HashMap<String, String> buffer = nearbyRestaurantList.get(placeCount);
-            buffer.put("phone_number", parser.getRestaurantDetails(s));
+            HashMap<String, String> buffer = nearbyRestaurantList.get(currentIndex);
+            HashMap<String, String> placeDetailsRequest = parser.getRestaurantDetails(s);
+            buffer.put("phone_number", placeDetailsRequest.get("phone_number"));
+            buffer.put("website", placeDetailsRequest.get("website"));
             buffer.put("photo_url",photoUrl);
-            nearbyRestaurantList.add(placeCount, buffer);
+            nearbyRestaurantList.remove(currentIndex);
+            nearbyRestaurantList.add(currentIndex,buffer);
         } catch (JSONException e) {
             e.printStackTrace();
         }

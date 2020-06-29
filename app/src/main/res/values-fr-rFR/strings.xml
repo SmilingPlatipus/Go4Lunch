@@ -14,4 +14,7 @@
     <string name="title_workmates">Collègues disponibles</string>
     <string name="workmate_not_chosen">ne s\'est pas encore décidé</string>
     <string name="log_out">Vous avez été déconnecté</string>
+    <string name="detail_restaurant_phone">APPEL</string>
+    <string name="detail_restaurant_like">J\'AIME</string>
+    <string name="detail_restaurant_website">SITE WEB</string>
 </resources>
