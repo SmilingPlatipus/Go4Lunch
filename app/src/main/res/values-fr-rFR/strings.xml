@@ -17,4 +17,5 @@
     <string name="detail_restaurant_phone">APPEL</string>
     <string name="detail_restaurant_like">J\'AIME</string>
     <string name="detail_restaurant_website">SITE WEB</string>
+    <string name="searchbar_restaurant_hint">Rechercher un endroit</string>
 </resources>

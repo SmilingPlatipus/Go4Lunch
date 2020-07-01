@@ -6,10 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,7 +14,7 @@ import com.example.go4lunch.R;
 import com.example.go4lunch.adapters.WorkmateAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 
-import static com.example.go4lunch.activities.MainActivity.options;
+import static com.example.go4lunch.activities.MainActivity.optionsForWorkmatesRecyclerView;
 
 public class WorkmatesFragment extends Fragment
 {
@@ -32,7 +29,7 @@ public class WorkmatesFragment extends Fragment
 
 
         // Creating adapter for RecyclerView
-        adapter = new WorkmateAdapter(options);
+        adapter = new WorkmateAdapter(optionsForWorkmatesRecyclerView);
 
         // Initializing Recyclerview
         mWorkmates = (RecyclerView) root.findViewById(R.id.workmates_recyclerview);

@@ -7,6 +7,8 @@ import android.util.Log;
 
 import static com.example.go4lunch.fragments.map.MapFragment.getCustomMarkerUrl;
 import static com.example.go4lunch.fragments.map.MapFragment.nearbyRestaurantList;
+import static com.example.go4lunch.fragments.map.MapFragment.fakeConfig;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,7 +49,10 @@ public class NearbyRestaurants extends AsyncTask<Object, Void, String>
             if (customRestaurantsBitmap == null){
                 customRestaurantsBitmap = getBitmapFromURL(getCustomMarkerUrl());
             }
-            googlePlacesData = downloadUrl.readUrl(nearbyPlacesRequest);
+            if (!fakeConfig)
+                googlePlacesData = downloadUrl.readUrl(nearbyPlacesRequest);
+            else
+                googlePlacesData = nearbyPlacesRequest;
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -27,6 +27,12 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
     String photoUrl = null;
     int currentIndex;
 
+    public PlaceDetailsResponse callback = null;
+
+    public PlaceDetails(PlaceDetailsResponse callback) {
+        this.callback = callback;
+    }
+
     @Override
     protected String doInBackground(Object... objects) {
         placeDetailsRequest = (String) objects[0];
@@ -40,11 +46,6 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
 
         try {
             googlePlaceDetails = downloadUrl.readUrl(placeDetailsRequest);
-/*
-            if (placePhotoRequest != null)
-                photoUrl = downloadUrl.readUrl(placePhotoRequest);
-
- */
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,4 +68,10 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
             e.printStackTrace();
         }
     }
+
+    public interface PlaceDetailsResponse
+    {
+        void onPlaceDetailsCompleted();
+    }
+
 }

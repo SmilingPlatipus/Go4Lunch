@@ -17,9 +17,12 @@ import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,23 +35,24 @@ import com.example.go4lunch.model.Workmate;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.FetchPlaceResponse;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.AutocompleteActivity;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -57,22 +61,36 @@ import com.google.firebase.auth.UserInfo;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.mancj.materialsearchbar.MaterialSearchBar;
+import com.mancj.materialsearchbar.adapter.SuggestionsAdapter;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     public static final String TAG = "MainActivity";
-    private static final int AUTOCOMPLETE_REQUEST_CODE = 5487;
-    PlacesClient placesClient;
-    public static GoogleMap mMap;
-    public static FusedLocationProviderClient mFusedLocationProviderClient;
-    public static Location currentLocation;
+    public static final float DEFAULT_ZOOM = 17f;
+
+    // The firebase user logged in the application
     FirebaseUser user;
+
+    // Google maps purpose
+    public static GoogleMap mMap;
+    public static View mapView;
+    public static FusedLocationProviderClient mFusedLocationProviderClient;
+    public static Location lastKnownLocation;
+
+    // Google Places autocomplete purpose
+    public static PlacesClient placesClient;
+    public static List<AutocompletePrediction> predictionList;
+    public static MaterialSearchBar materialSearchBar;
+
+    // Navigation drawer widgets
     DrawerLayout mDrawerLayout;
-    Toolbar mToolbar;
+    public static Toolbar mToolbar;
     NavigationView mDrawerNavigationView;
     ActionBarDrawerToggle toggle;
 
@@ -88,8 +106,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static FirebaseFirestore firebaseFirestore;
     private CollectionReference workmatesReference;
 
-    // Firestore options for RecyclerView
-    public static FirestoreRecyclerOptions<Workmate> options;
+    // Firestore options for workmates RecyclerView
+    public static FirestoreRecyclerOptions<Workmate> optionsForWorkmatesRecyclerView;
 
 
 
@@ -105,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        materialSearchBar = findViewById(R.id.searchBar);
         mToolbar = findViewById(R.id.toolbar);
         mDrawerLayout = findViewById(R.id.drawer);
         mDrawerNavigationView = findViewById(R.id.drawer_navigationview);
@@ -140,9 +158,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Query to database
         Query query = workmatesReference.orderBy("name",Query.Direction.DESCENDING);
         // Recycler Options
-        options = new FirestoreRecyclerOptions.Builder<Workmate>()
+        optionsForWorkmatesRecyclerView = new FirestoreRecyclerOptions.Builder<Workmate>()
                 .setQuery(query,Workmate.class)
                 .build();
+
     }
 
     public void initProfileInformations(){
@@ -159,6 +178,151 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
         // Create a new Places client instance
         placesClient = Places.createClient(this);
+    }
+    public void showAutocompleteSearchBar(View view){
+
+        // Show materialSearchBar, hide regular App Bar
+        materialSearchBar.setVisibility(View.VISIBLE);
+        mToolbar.setVisibility(View.GONE);
+        // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
+        // and once again when the user makes a selection (for example when calling fetchPlace()).
+        AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
+        materialSearchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener()
+        {
+            @Override
+            public void onSearchStateChanged(boolean enabled) {
+
+            }
+
+            @Override
+            public void onSearchConfirmed(CharSequence text) {
+                startSearch(text.toString(),true,null,true);
+            }
+
+            @Override
+            public void onButtonClicked(int buttonCode) {
+                if (buttonCode == MaterialSearchBar.BUTTON_NAVIGATION){
+
+                }
+                else if (buttonCode == MaterialSearchBar.BUTTON_BACK){
+                    materialSearchBar.disableSearch();
+                    materialSearchBar.setVisibility(View.GONE);
+                    mToolbar.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        materialSearchBar.addTextChangeListener(new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Use the builder to create a FindAutocompletePredictionsRequest.
+                FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
+                        .setOrigin(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()))
+                        .setCountries("FR")
+                        .setTypeFilter(TypeFilter.CITIES)
+                        .setSessionToken(token)
+                        .setQuery(charSequence.toString())
+                        .build();
+
+                placesClient.findAutocompletePredictions(request).addOnCompleteListener(new OnCompleteListener<FindAutocompletePredictionsResponse>()
+                {
+                    @Override
+                    public void onComplete(@NonNull Task<FindAutocompletePredictionsResponse> task) {
+                        if (task.isSuccessful()){
+                            FindAutocompletePredictionsResponse predictionsResponse = task.getResult();
+                            if (predictionsResponse != null){
+                                predictionList = predictionsResponse.getAutocompletePredictions();
+                                List <String> suggestionsList = new ArrayList<>();
+                                for (int i = 0; i < predictionList.size();i++){
+                                    AutocompletePrediction prediction = predictionList.get(i);
+                                    suggestionsList.add(prediction.getFullText(null).toString());
+                                }
+                                materialSearchBar.updateLastSuggestions(suggestionsList);
+                                if (!materialSearchBar.isSuggestionsVisible()){
+                                    materialSearchBar.showSuggestionsList();
+                                }
+                            }
+                        }
+                        else {
+                            Log.i(TAG, "onComplete: prediction failed");
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        materialSearchBar.setSuggstionsClickListener(new SuggestionsAdapter.OnItemViewClickListener()
+        {
+            @Override
+            public void OnItemClickListener(int position, View v) {
+                if (position >= predictionList.size())
+                    return;
+                AutocompletePrediction selectedPrediction = predictionList.get(position);
+                String suggestion = materialSearchBar.getLastSuggestions().get(position).toString();
+                materialSearchBar.setText(suggestion);
+                materialSearchBar.clearSuggestions();
+                InputMethodManager inputManager = (InputMethodManager) getApplicationContext().getSystemService(INPUT_METHOD_SERVICE);
+                if (inputManager != null)
+                    inputManager.hideSoftInputFromWindow(materialSearchBar.getWindowToken(),InputMethodManager.HIDE_IMPLICIT_ONLY);
+
+                String placeId = selectedPrediction.getPlaceId();
+                List<Place.Field> placefields = Arrays.asList(Place.Field.LAT_LNG);
+
+                FetchPlaceRequest fetchPlaceRequest = FetchPlaceRequest.builder(placeId, placefields).build();
+                placesClient.fetchPlace(fetchPlaceRequest).addOnSuccessListener(new OnSuccessListener<FetchPlaceResponse>()
+                {
+                    @Override
+                    public void onSuccess(FetchPlaceResponse fetchPlaceResponse) {
+                        Place place = fetchPlaceResponse.getPlace();
+                        Log.i(TAG, "onSuccess: place found is : " + place.getName());
+                        LatLng latLngOfPlace = place.getLatLng();
+                        if (latLngOfPlace != null)
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngOfPlace, DEFAULT_ZOOM));
+                    }
+                }).addOnFailureListener(new OnFailureListener()
+                {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (e instanceof ApiException){
+                            ApiException apiException = (ApiException) e;
+                            apiException.printStackTrace();
+                            int statusCode = apiException.getStatusCode();
+                            Log.i(TAG, "onFailure: place not found : "+ e.getMessage() + " status code : " + statusCode);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void OnItemDeleteListener(int position, View v) {
+
+            }
+        });
+
+        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener()
+        {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                if (materialSearchBar.isSuggestionsVisible() || materialSearchBar.isSearchEnabled()) {
+                    materialSearchBar.clearSuggestions();
+                    materialSearchBar.disableSearch();
+                    materialSearchBar.setVisibility(View.GONE);
+                    mToolbar.setVisibility(View.VISIBLE);
+                }
+                return false;
+            }
+        });
+
     }
     @Override
     public void onBackPressed() {
@@ -250,72 +414,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userProfileFirstName.setText(firstName);
         userProfileLastName.setText(lastName);
         userProfileEmail.setText(email);
-    }
-
-    public void startAutoCompleteActivity(View view) {
-
-        // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
-        // and once again when the user makes a selection (for example when calling fetchPlace()).
-        AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
-
-        // Create a RectangularBounds object.
-        RectangularBounds bounds = RectangularBounds.newInstance(
-                new LatLng(44.3989, 1.5248),
-                new LatLng(44.4915, 1.3601));
-        // Use the builder to create a FindAutocompletePredictionsRequest.
-        FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
-                // Call either setLocationBias() OR setLocationRestriction().
-                .setLocationRestriction(bounds)
-                //.setLocationRestriction(bounds)
-                .setOrigin(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()))
-                .setCountries("FR")
-                .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                .setSessionToken(token)
-                .build();
-
-        placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
-            for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
-                Log.i(TAG, prediction.getPlaceId());
-                Log.i(TAG, prediction.getPrimaryText(null).toString());
-            }
-        }).addOnFailureListener((exception) -> {
-            if (exception instanceof ApiException) {
-                ApiException apiException = (ApiException) exception;
-                Log.e(TAG, "Place not found: " + apiException.getStatusCode());
-            }
-        });
-
-        // Set the fields to specify which types of place data to
-        // return after the user has made a selection.
-        List<Place.Field> fields = Arrays.asList(Place.Field.TYPES, Place.Field.NAME);
-
-        // Start the autocomplete intent.
-        Intent intent = new Autocomplete.IntentBuilder(
-                AutocompleteActivityMode.OVERLAY, fields)
-                .setLocationRestriction(RectangularBounds.newInstance(
-                new LatLng(44.3989, 1.5248),
-                new LatLng(44.4915, 1.3601)))
-                .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                .build(this);
-        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
-                Toast.makeText(getApplicationContext(),"Place: " + place.getName() + ", " + place.getId(),Toast.LENGTH_SHORT).show();
-            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                // TODO: Handle the error.
-                Status status = Autocomplete.getStatusFromIntent(data);
-                Log.i(TAG, status.getStatusMessage());
-            } else if (resultCode == RESULT_CANCELED) {
-                // The user canceled the operation.
-            }
-        }
     }
 
     @Override

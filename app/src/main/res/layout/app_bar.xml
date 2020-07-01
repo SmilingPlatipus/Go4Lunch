@@ -26,7 +26,7 @@
         android:layout_gravity="end"
         android:layout_margin="15dp"
         android:background="@color/colorPrimary2"
-        android:onClick="startAutoCompleteActivity"
+        android:onClick="showAutocompleteSearchBar"
         android:scaleType="center"
         android:src="@drawable/ic_baseline_search_24"
         android:tint="#FFFFFF" />

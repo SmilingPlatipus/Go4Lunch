@@ -29,6 +29,7 @@ public class PlacesSearchDataParser
         String placeId = "";
         String photoReference = "";
         String photoWidth = "";
+        String rating = "";
 
         try {
             if (!googlePlaceJSON.isNull("name")){
@@ -46,6 +47,9 @@ public class PlacesSearchDataParser
                 photoReference = googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
                 photoWidth = googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("width");
             }
+            if (!googlePlaceJSON.isNull("rating")){
+                rating = googlePlaceJSON.getString("rating");
+            }
 
             // Preparing the GooglePlacesMap to return
             googlePlacesMap.put("place_name",placeName);
@@ -53,9 +57,9 @@ public class PlacesSearchDataParser
             googlePlacesMap.put("lat",latitude);
             googlePlacesMap.put("lng",longitude);
             googlePlacesMap.put("place_id",placeId);
-            googlePlacesMap.put("width", photoWidth);
+            googlePlacesMap.put("photo_width", photoWidth);
             googlePlacesMap.put("photo_reference",photoReference);
-
+            googlePlacesMap.put("rating",rating);
 
 
         } catch (JSONException e) {

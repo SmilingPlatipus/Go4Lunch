@@ -16,14 +16,14 @@ public class Restaurant
     int distanceFromUser;
     int workmatesCount;
     int rating;
+    boolean isOpenedNow;
 
-
-    // Todo : handle opening hours
 
     public Restaurant() {
     }
 
-    public Restaurant(String id, String placeId, String name, String address, String phoneNumber, @Nullable String websiteUrl, @Nullable String imageUrl, int photoMaxWidth, int distanceFromUser, int workmatesCount, int rating) {
+    public Restaurant(String id, String placeId, String name, String address, String phoneNumber, @Nullable String websiteUrl, @Nullable String imageUrl,
+                      int photoMaxWidth, int distanceFromUser, int workmatesCount, int rating, boolean isOpenedNow) {
         this.id = id;
         this.placeId = placeId;
         this.name = name;
@@ -35,6 +35,7 @@ public class Restaurant
         this.distanceFromUser = distanceFromUser;
         this.workmatesCount = workmatesCount;
         this.rating = rating;
+        this.isOpenedNow = isOpenedNow;
     }
 
     public String getId() {
@@ -126,5 +127,13 @@ public class Restaurant
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public boolean isOpenedNow() {
+        return isOpenedNow;
+    }
+
+    public void setOpenedNow(boolean openedNow) {
+        isOpenedNow = openedNow;
     }
 }

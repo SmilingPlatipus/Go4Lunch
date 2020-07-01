@@ -1,6 +1,7 @@
 package com.example.go4lunch.fragments.map;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,6 +39,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,21 +48,26 @@ import java.util.List;
 import static android.content.Context.LOCATION_SERVICE;
 import static com.example.go4lunch.activities.MainActivity.mFusedLocationProviderClient;
 import static com.example.go4lunch.activities.MainActivity.mMap;
-import static com.example.go4lunch.activities.MainActivity.currentLocation;
+import static com.example.go4lunch.activities.MainActivity.lastKnownLocation;
+import static com.example.go4lunch.activities.MainActivity.DEFAULT_ZOOM;
+import static com.example.go4lunch.activities.MainActivity.mapView;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnPoiClickListener, NearbyRestaurants.NearbyRestaurantsResponse
+public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnPoiClickListener, NearbyRestaurants.NearbyRestaurantsResponse, PlaceDetails.PlaceDetailsResponse
 {
     private static final String TAG = "MapFragment";
 
-    private static final float DEFAULT_ZOOM = 17f;
     private static final int PERMS_CALL_CODE = 354;
     private static final int PROXIMITY_RADIUS = 10000;
 
     private LocationManager locationManager;
 
     public static List<HashMap<String, String>> nearbyRestaurantList = new ArrayList();
+    public static List<Restaurant> nearbyRestaurant = new ArrayList<>();
 
+    // This is a fake configuration for local testing purposes
+    public static boolean fakeConfig = true;
+    public static int tokenNumber = 2;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_map, container, false);
@@ -143,9 +152,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         Log.d(TAG, "initMap: initializing map");
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        mapView = mapFragment.getView();
     }
 
     private void getDeviceLocation(){
+        // Setting the location of the user to its current position by default
+        // This can be changer with the search bar by selecting a place
+        // Just press the "Mylocation" button to get back to current place
         Log.d(TAG, "getDeviceLocation: getting the devices current location");
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
@@ -158,12 +171,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                     public void onComplete(@NonNull Task task) {
                         if(task.isSuccessful()){
                             Log.d(TAG, "onComplete: found location : " + location.getResult().toString());
-                            currentLocation = (Location) task.getResult();
-                            LatLng userLocation = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                            lastKnownLocation = (Location) task.getResult();
+                            LatLng userLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,DEFAULT_ZOOM));
                             mMap.setMyLocationEnabled(true);
                             mMap.getUiSettings().setMyLocationButtonEnabled(true);
                             mMap.getUiSettings().setCompassEnabled(true);
+                            if (mapView != null && mapView.findViewById(Integer.parseInt("1")) != null){
+                                View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+                                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+                                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,RelativeLayout.TRUE);
+                                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP,0);
+                                layoutParams.setMargins(0, 0, 40, 180);
+                            }
                             getRestaurantsLocations();
                         }
                         else{
@@ -210,15 +230,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     private void getRestaurantsLocations() {
-        String url = getPlacesSearchUrl(currentLocation.getLatitude(), currentLocation.getLongitude(), "restaurant");
-        Object dataTransfer[] = new Object[2];
-        dataTransfer[0] = getApplicationContext().getString(R.string.google_api_key);
-        dataTransfer[1] = url;
+        if (!fakeConfig) {
+            String url = getPlacesSearchUrl(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), "restaurant");
+            Object dataTransfer[] = new Object[2];
+            dataTransfer[0] = getApplicationContext().getString(R.string.google_api_key);
+            dataTransfer[1] = url;
 
-        NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
-        NearbyRestaurants.pageCount = 1;
-        Log.i(TAG, "getRestaurantsLocations: task : " + NearbyRestaurants.pageCount + " executing...");
-        nearbyRestaurants.execute(dataTransfer);
+            NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
+            NearbyRestaurants.pageCount = 1;
+            Log.i(TAG, "getRestaurantsLocations: task : " + NearbyRestaurants.pageCount + " executing...");
+            nearbyRestaurants.execute(dataTransfer);
+        }
+        else{
+            Object dataTransfer[] = new Object[2];
+            dataTransfer[0] = getApplicationContext().getString(R.string.google_api_key);
+            dataTransfer[1] = loadJSONFromAsset(getApplicationContext(),"places_search_results_cahors_page_1");
+
+            NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
+            NearbyRestaurants.pageCount = 1;
+            Log.i(TAG, "getRestaurantsLocations: task : " + NearbyRestaurants.pageCount + " executing...");
+            nearbyRestaurants.execute(dataTransfer);
+        }
     }
 
     public static String getCustomMarkerUrl(){
@@ -308,7 +340,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     // Callback method from NearbyPlacesSearch Asynctask
     @Override
     public void onNearbyRestaurantsCompleted(String nextPageToken) {
-
          // Making Places Details request to get more informations about all restaurants treated in previous thread
         int restaurantCount = 0;
         for (HashMap<String, String> currentRestaurant : nearbyRestaurantList) {
@@ -322,19 +353,63 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
              */
             transferObject[2] = (int) restaurantCount;
-            PlaceDetails placesDetails = new PlaceDetails();
+            PlaceDetails placesDetails = new PlaceDetails(this);
             placesDetails.execute(transferObject);
             restaurantCount++;
         }
          Log.i(TAG, "onProcessFinished: task : " + NearbyRestaurants.pageCount + " ending...");
         if (nextPageToken != null) {
-            Object dataTransfer[] = new Object[2];
-            dataTransfer[0] = getApplicationContext().getString(R.string.google_api_key);
-            dataTransfer[1] = getPlacesSearchNextPageUrl(nextPageToken);
+            if (!fakeConfig) {
+                Object dataTransfer[] = new Object[2];
+                dataTransfer[0] = getApplicationContext().getString(R.string.google_api_key);
+                dataTransfer[1] = getPlacesSearchNextPageUrl(nextPageToken);
 
-            NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
-            Log.i(TAG, "onProcessFinished: task : " + NearbyRestaurants.pageCount + " executing...");
-            nearbyRestaurants.execute(dataTransfer);
+                NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
+                Log.i(TAG, "onProcessFinished: task : " + NearbyRestaurants.pageCount + " executing...");
+                nearbyRestaurants.execute(dataTransfer);
+            }
+            else {
+                Object dataTransfer[] = new Object[2];
+                dataTransfer[0] = getApplicationContext().getString(R.string.google_api_key);
+                dataTransfer[1] = loadJSONFromAsset(getApplicationContext(),"places_search_results_cahors_page_" + tokenNumber);
+
+                NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
+                Log.i(TAG, "onProcessFinished: task : " + NearbyRestaurants.pageCount + " executing...");
+                nearbyRestaurants.execute(dataTransfer);
+                tokenNumber++;
+            }
         }
     }
+
+    // This is for fake configuration purpose
+    public String loadJSONFromAsset(Context context, String file_name) {
+        String json = null;
+        try {
+            InputStream is = context.getAssets().open(file_name + ".json");
+
+            int size = is.available();
+
+            byte[] buffer = new byte[size];
+
+            is.read(buffer);
+
+            is.close();
+
+            json = new String(buffer, "UTF-8");
+
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
+
+    }
+
+    @Override
+    public void onPlaceDetailsCompleted() {
+        // Finally creating one by one our restaurants
+
+    }
+
 }
