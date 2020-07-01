@@ -35,12 +35,14 @@
     <string name="log_out">You have been logged out</string>
 
     <!-- Custom Marker URL -->
-    <string name="custom_marker_url" translatable="false">https://cdn.pixabay.com/photo/2017/02/17/11/52/icon-2073973_960_720.png</string>
+    <string name="custom_marker_url" translatable="false">https://cdn.onlinewebfonts.com/svg/img_57428.png</string>
 
     <!-- Detail Restaurant View -->
     <string name="detail_restaurant_phone">CALL</string>
     <string name="detail_restaurant_like">LIKE</string>
     <string name="detail_restaurant_website">WEBSITE</string>
     <string name="searchbar_restaurant_hint">Search for a place</string>
+    <string name="restaurant_status_opened">Opened</string>
+    <string name="restaurant_status_closed">Closed</string>
 
 </resources>

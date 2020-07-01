@@ -31,6 +31,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -174,6 +176,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                             lastKnownLocation = (Location) task.getResult();
                             LatLng userLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,DEFAULT_ZOOM));
+
+                            // Activating the "MyLocation" button and replacing it at the bottom of the map
                             mMap.setMyLocationEnabled(true);
                             mMap.getUiSettings().setMyLocationButtonEnabled(true);
                             mMap.getUiSettings().setCompassEnabled(true);
@@ -184,6 +188,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                                 layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP,0);
                                 layoutParams.setMargins(0, 0, 40, 180);
                             }
+                            // Searching for restaurants in the current area, with Google Places requests
                             getRestaurantsLocations();
                         }
                         else{
@@ -272,11 +277,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         myBitmap.setPixels(allpixels,0,myBitmap.getWidth(),0, 0, myBitmap.getWidth(),myBitmap.getHeight());
     }
 
-    public static void addCustomRestaurantsMarkers(List<HashMap<String, String>> nPlaceList, Bitmap mIcon){
-        for (int placeCount =0;placeCount < nPlaceList.size();placeCount++){
+    public static void addCustomRestaurantMarker(HashMap<String, String> googlePlace, Bitmap mIcon){
 
             MarkerOptions markerOptions = new MarkerOptions();
-            HashMap<String, String> googlePlace = nPlaceList.get(placeCount);
 
             String placeName = googlePlace.get("place_name");
             String vicinity = googlePlace.get("vicinity");
@@ -286,8 +289,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
             LatLng latLng = new LatLng(lat,lng);
             markerOptions.position(latLng);
             markerOptions.title(placeName + " : " + vicinity);
-            // Todo : change bitmap directly into NearbyRestaurants
-            /*
+
             Bitmap scaledBitmap = Bitmap.createScaledBitmap(mIcon,100,150,false);
             changeBitmapTintTo(scaledBitmap, Color.CYAN);
             mIcon = scaledBitmap;
@@ -295,10 +297,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
             markerOptions.icon(icon);
             mMap.addMarker(markerOptions);
-
-             */
-            Log.i(TAG, "addNearbyPlacesMarkers: element "+placeCount+":"+placeName+" "+vicinity+" "+lat+" "+lng);
-        }
     }
 
     private String getPlacesSearchUrl(double latitude, double longitude, String nearbyPlace){
@@ -345,19 +343,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         for (HashMap<String, String> currentRestaurant : nearbyRestaurantList) {
             Object transferObject[] = new Object[3];
             transferObject[0] = (String) makePlacesDetailsRequest(currentRestaurant.get("place_id"));
-            /*
-            if (currentRestaurant.get("photo_reference") != null && currentRestaurant.get("width") != null)
-                transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"),currentRestaurant.get("width"));
-            else
-                transferObject[1] = null;
-
-             */
+            transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"),currentRestaurant.get("width"));
             transferObject[2] = (int) restaurantCount;
             PlaceDetails placesDetails = new PlaceDetails(this);
             placesDetails.execute(transferObject);
             restaurantCount++;
         }
          Log.i(TAG, "onProcessFinished: task : " + NearbyRestaurants.pageCount + " ending...");
+
+        // Then making custom Places Search request with nextpagetoken in another thread
         if (nextPageToken != null) {
             if (!fakeConfig) {
                 Object dataTransfer[] = new Object[2];
@@ -407,9 +401,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     @Override
-    public void onPlaceDetailsCompleted() {
+    public void onPlaceDetailsCompleted(HashMap<String, String> googlePlace, Bitmap mIcon) {
+        // Adding markers, one by one to the map
+        addCustomRestaurantMarker(googlePlace,mIcon);
         // Finally creating one by one our restaurants
-
+        nearbyRestaurant.add(new Restaurant(googlePlace,lastKnownLocation));
     }
 
 }

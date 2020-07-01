@@ -27,7 +27,6 @@ public class NearbyRestaurants extends AsyncTask<Object, Void, String>
     static String apiKey;
     String googlePlacesData;
     String nearbyPlacesRequest;
-    static Bitmap customRestaurantsBitmap = null;
 
     public static int pageCount;
 
@@ -45,10 +44,6 @@ public class NearbyRestaurants extends AsyncTask<Object, Void, String>
 
         DownloadUrl downloadUrl = new DownloadUrl();
         try {
-            // Get once the custom marker that we will use for our restaurants
-            if (customRestaurantsBitmap == null){
-                customRestaurantsBitmap = getBitmapFromURL(getCustomMarkerUrl());
-            }
             if (!fakeConfig)
                 googlePlacesData = downloadUrl.readUrl(nearbyPlacesRequest);
             else
@@ -65,21 +60,6 @@ public class NearbyRestaurants extends AsyncTask<Object, Void, String>
         PlacesSearchDataParser parser = new PlacesSearchDataParser();
         nearbyRestaurantList.addAll(parser.parse(s));
         callback.onNearbyRestaurantsCompleted(parser.nextPageToken);
-    }
-
-    public static Bitmap getBitmapFromURL(String src) {
-        try {
-            URL url = new URL(src);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return myBitmap;
-        } catch (IOException e) {
-            Log.e(TAG, "getBitmapFromURL: "+e.getMessage() );
-            return null;
-        }
     }
 
     public interface NearbyRestaurantsResponse

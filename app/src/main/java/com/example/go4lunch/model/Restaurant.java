@@ -1,5 +1,9 @@
 package com.example.go4lunch.model;
 
+import android.location.Location;
+
+import java.util.HashMap;
+
 import javax.annotation.Nullable;
 
 public class Restaurant
@@ -13,30 +17,33 @@ public class Restaurant
     @Nullable String imageUrl;
 
     @Nullable int photoMaxWidth;
-    int distanceFromUser;
+    double distanceFromUser;
     int workmatesCount;
-    int rating;
+    float rating;
     boolean isOpenedNow;
 
 
     public Restaurant() {
     }
 
-    public Restaurant(String id, String placeId, String name, String address, String phoneNumber, @Nullable String websiteUrl, @Nullable String imageUrl,
-                      int photoMaxWidth, int distanceFromUser, int workmatesCount, int rating, boolean isOpenedNow) {
-        this.id = id;
-        this.placeId = placeId;
-        this.name = name;
-        this.address = address;
-        this.phoneNumber = phoneNumber;
-        this.websiteUrl = websiteUrl;
-        this.imageUrl = imageUrl;
-        this.photoMaxWidth = photoMaxWidth;
-        this.distanceFromUser = distanceFromUser;
-        this.workmatesCount = workmatesCount;
-        this.rating = rating;
-        this.isOpenedNow = isOpenedNow;
+    public Restaurant(HashMap<String, String> restaurant, Location latLng){
+        this.id = restaurant.get("reference");
+        this.placeId = restaurant.get("place_id");
+        this.name = restaurant.get("place_name");
+        this.address = restaurant.get("vicinity");
+        this.phoneNumber = restaurant.get("phone_number");
+        this.websiteUrl = restaurant.get("website");
+        this.imageUrl = restaurant.get("photo_url");
+        this.photoMaxWidth = Integer.parseInt(restaurant.get("photo_width"));
+        this.workmatesCount = 0;
+        this.rating = Float.parseFloat(restaurant.get("rating"));
+        this.isOpenedNow = Boolean.parseBoolean(restaurant.get("open_now"));
+
+        float [] result = new float[1];
+        Location.distanceBetween(latLng.getLatitude(),latLng.getLongitude(),Double.parseDouble(restaurant.get("lat")),Double.parseDouble(restaurant.get("lng")),result);
+        this.distanceFromUser = (double) result[0];
     }
+
 
     public String getId() {
         return id;
@@ -97,11 +104,11 @@ public class Restaurant
         this.photoMaxWidth = photoMaxWidth;
     }
 
-    public int getDistanceFromUser() {
+    public double getDistanceFromUser() {
         return distanceFromUser;
     }
 
-    public void setDistanceFromUser(int distanceFromUser) {
+    public void setDistanceFromUser(double distanceFromUser) {
         this.distanceFromUser = distanceFromUser;
     }
 
@@ -113,11 +120,11 @@ public class Restaurant
         this.workmatesCount = workmatesCount;
     }
 
-    public int getRating() {
+    public float getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public void setRating(float rating) {
         this.rating = rating;
     }
 

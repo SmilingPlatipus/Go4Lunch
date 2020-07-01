@@ -30,6 +30,8 @@ public class PlacesSearchDataParser
         String photoReference = "";
         String photoWidth = "";
         String rating = "";
+        String reference = "";
+        String openNow = "";
 
         try {
             if (!googlePlaceJSON.isNull("name")){
@@ -43,6 +45,7 @@ public class PlacesSearchDataParser
 
 
             placeId = googlePlaceJSON.getString("place_id");
+            reference = googlePlaceJSON.getString("reference");
             if (!googlePlaceJSON.getJSONArray("photos").getJSONObject(0).isNull("photo_reference")) {
                 photoReference = googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
                 photoWidth = googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("width");
@@ -50,6 +53,8 @@ public class PlacesSearchDataParser
             if (!googlePlaceJSON.isNull("rating")){
                 rating = googlePlaceJSON.getString("rating");
             }
+
+            openNow = googlePlaceJSON.getJSONObject("opening_hours").getString("open_now");
 
             // Preparing the GooglePlacesMap to return
             googlePlacesMap.put("place_name",placeName);
@@ -60,6 +65,8 @@ public class PlacesSearchDataParser
             googlePlacesMap.put("photo_width", photoWidth);
             googlePlacesMap.put("photo_reference",photoReference);
             googlePlacesMap.put("rating",rating);
+            googlePlacesMap.put("reference",reference);
+            googlePlacesMap.put("open_now",openNow);
 
 
         } catch (JSONException e) {

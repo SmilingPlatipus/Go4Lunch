@@ -11,6 +11,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
@@ -72,7 +73,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     public static final String TAG = "MainActivity";
-    public static final float DEFAULT_ZOOM = 17f;
+    public static final float DEFAULT_ZOOM = 15f;
 
     // The firebase user logged in the application
     FirebaseUser user;
