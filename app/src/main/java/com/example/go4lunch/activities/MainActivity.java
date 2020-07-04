@@ -48,6 +48,7 @@ import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceResponse;
@@ -222,12 +223,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Todo : restrictions not working
+                RectangularBounds bounds = RectangularBounds.newInstance(
+                        new LatLng(44.485161, 1.541838),
+                        new LatLng(44.485181, 1.351122)
+                        );
                 // Use the builder to create a FindAutocompletePredictionsRequest.
                 FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
+                        .setLocationRestriction(bounds)
                         .setOrigin(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()))
-                        .setCountries("FR")
-                        .setTypeFilter(TypeFilter.CITIES)
+                        .setTypeFilter(TypeFilter.ADDRESS)
                         .setSessionToken(token)
+                        .setCountries("FR")
                         .setQuery(charSequence.toString())
                         .build();
 

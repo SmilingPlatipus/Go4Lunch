@@ -1,20 +1,26 @@
 package com.example.go4lunch.fragments.map;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,7 +28,10 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
+import com.example.go4lunch.activities.MainActivity;
 import com.example.go4lunch.model.NearbyRestaurants;
 import com.example.go4lunch.model.PlaceDetails;
 import com.example.go4lunch.model.Restaurant;
@@ -35,8 +44,8 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
@@ -46,6 +55,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import static android.content.Context.LOCATION_SERVICE;
 import static com.example.go4lunch.activities.MainActivity.mFusedLocationProviderClient;
@@ -55,7 +65,9 @@ import static com.example.go4lunch.activities.MainActivity.DEFAULT_ZOOM;
 import static com.example.go4lunch.activities.MainActivity.mapView;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnPoiClickListener, NearbyRestaurants.NearbyRestaurantsResponse, PlaceDetails.PlaceDetailsResponse
+public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnInfoWindowClickListener,
+                                                     NearbyRestaurants.NearbyRestaurantsResponse, PlaceDetails.PlaceDetailsResponse,
+                                                     GoogleMap.OnMarkerClickListener
 {
     private static final String TAG = "MapFragment";
 
@@ -133,8 +145,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         Log.d(TAG, "onMapReady: Map is ready");
         mMap = googleMap;
         getDeviceLocation();
-        mMap.setOnPoiClickListener(this);
-
+        mMap.setOnInfoWindowClickListener(this);
+        mMap.setOnMarkerClickListener(this);
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file, removing businesses.
@@ -159,7 +171,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     private void getDeviceLocation(){
         // Setting the location of the user to its current position by default
-        // This can be changer with the search bar by selecting a place
+        // This can be changed with the search bar by selecting a place
         // Just press the "Mylocation" button to get back to current place
         Log.d(TAG, "getDeviceLocation: getting the devices current location");
 
@@ -222,18 +234,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     }
 
-    @Override
-    public void onPoiClick(PointOfInterest pointOfInterest) {
-        /*
-        Toast.makeText(getApplicationContext(), "Clicked: " +
-                               pointOfInterest.name + "\nPlace ID:" + pointOfInterest.placeId +
-                               "\nLatitude:" + pointOfInterest.latLng.latitude +
-                               " Longitude:" + pointOfInterest.latLng.longitude,
-                       Toast.LENGTH_SHORT).show();
-
-         */
-    }
-
     private void getRestaurantsLocations() {
         if (!fakeConfig) {
             String url = getPlacesSearchUrl(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), "restaurant");
@@ -288,7 +288,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
             LatLng latLng = new LatLng(lat,lng);
             markerOptions.position(latLng);
-            markerOptions.title(placeName + " : " + vicinity);
+            markerOptions.title(placeName);
+            markerOptions.snippet(vicinity);
 
             Bitmap scaledBitmap = Bitmap.createScaledBitmap(mIcon,100,150,false);
             changeBitmapTintTo(scaledBitmap, Color.CYAN);
@@ -343,7 +344,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         for (HashMap<String, String> currentRestaurant : nearbyRestaurantList) {
             Object transferObject[] = new Object[3];
             transferObject[0] = (String) makePlacesDetailsRequest(currentRestaurant.get("place_id"));
-            transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"),currentRestaurant.get("width"));
+            transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"),currentRestaurant.get("photo_width"));
             transferObject[2] = (int) restaurantCount;
             PlaceDetails placesDetails = new PlaceDetails(this);
             placesDetails.execute(transferObject);
@@ -408,4 +409,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         nearbyRestaurant.add(new Restaurant(googlePlace,lastKnownLocation));
     }
 
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        // Todo : call DetailRestaurantActivity
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+
+        final Dialog d = new Dialog(this.getContext());
+        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        d.setContentView(R.layout.custom_info_window_layout);
+        TextView restaurantName = d.findViewById(R.id.restaurant_name);
+        TextView restaurantAddress = d.findViewById(R.id.restaurant_address);
+        ImageView restaurantPic = d.findViewById(R.id.restaurant_pic);
+
+                for (HashMap<String, String> currentRestaurant : nearbyRestaurantList){
+                    if (currentRestaurant.get("place_name") != null)
+                    if (marker.getTitle().compareTo(currentRestaurant.get("place_name")) == 0){
+                        restaurantName.setText(currentRestaurant.get("place_name"));
+                        restaurantAddress.setText(currentRestaurant.get("vicinity"));
+                        Glide.with(getContext())
+                                .load(currentRestaurant.get("photo_url"))
+                                .apply(new RequestOptions().override(70, 70))
+                                .into(restaurantPic);
+                    }
+                }
+
+        d.show();
+        return true;
+    }
 }

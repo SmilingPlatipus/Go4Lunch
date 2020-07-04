@@ -42,7 +42,10 @@
     <string name="detail_restaurant_like">LIKE</string>
     <string name="detail_restaurant_website">WEBSITE</string>
     <string name="searchbar_restaurant_hint">Search for a place</string>
+
+    <!-- Recyclerview Restaurant -->
     <string name="restaurant_status_opened">Opened</string>
     <string name="restaurant_status_closed">Closed</string>
+    <string name="restaurant_proximity_metric">meters</string>
 
 </resources>

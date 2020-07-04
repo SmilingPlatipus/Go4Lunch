@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
 import com.example.go4lunch.model.Restaurant;
 
@@ -42,7 +43,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         else
             holder.openingHour.setText(R.string.restaurant_status_closed);
 
-        holder.proximity.setText(String.valueOf(restaurantList.get(position).getDistanceFromUser()));
+        int proximity = (int) restaurantList.get(position).getDistanceFromUser();
+        holder.proximity.setText(String.valueOf(proximity) + " mètres");
         holder.workmateNumber.setText(String.valueOf(restaurantList.get(position).getWorkmatesCount()));
 
         if (restaurantList.get(position).getRating() <= 2){
@@ -64,6 +66,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
         Glide.with(holder.restaurantPic.getContext())
                 .load(restaurantList.get(position).getImageUrl())
+                .apply(new RequestOptions().override(70, 70))
                 .into(holder.restaurantPic);
     }
 

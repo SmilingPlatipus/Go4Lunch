@@ -25,6 +25,7 @@
             tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
             <RelativeLayout
+                android:id="@+id/detail_restaurant_all_infos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/detail_restaurant_pic"
@@ -144,6 +145,16 @@
 
 
             </RelativeLayout>
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/workmates_recyclerview"
+                android:name="com.example.go4lunch.fragments.WorkmatesFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical"
+                android:layout_below="@id/detail_restaurant_all_infos"/>
         </RelativeLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
