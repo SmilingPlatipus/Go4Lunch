@@ -1,6 +1,9 @@
 package com.example.go4lunch.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -57,9 +61,9 @@ public class DetailRestaurantActivity extends AppCompatActivity
         super.onStop();
     }
 
-    public void initDetailRestaurantActivity(){
+    public void initDetailRestaurantActivity() {
         intent = getIntent();
-        restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX,0);
+        restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX, 0);
     }
 
     private void initDetailRestaurantWidgets() {
@@ -70,25 +74,44 @@ public class DetailRestaurantActivity extends AppCompatActivity
                 .apply(new RequestOptions().override(70, 70))
                 .into(detailRestaurantPic);
 
-        if (Float.parseFloat(currentRestaurant.get("rating")) <= 2){
-            detailRestaurantStar1.setVisibility(View.VISIBLE);
-            detailRestaurantStar2.setVisibility(View.GONE);
-            detailRestaurantStar3.setVisibility(View.GONE);
-        }
-        else {
-            if (Float.parseFloat(currentRestaurant.get("rating")) <= 3.5) {
+        if (currentRestaurant.get("rating") != null) {
+            if (Float.parseFloat(currentRestaurant.get("rating")) <= 2) {
                 detailRestaurantStar1.setVisibility(View.VISIBLE);
-                detailRestaurantStar2.setVisibility(View.VISIBLE);
+                detailRestaurantStar2.setVisibility(View.GONE);
                 detailRestaurantStar3.setVisibility(View.GONE);
             } else {
-                detailRestaurantStar1.setVisibility(View.VISIBLE);
-                detailRestaurantStar2.setVisibility(View.VISIBLE);
-                detailRestaurantStar3.setVisibility(View.VISIBLE);
+                if (Float.parseFloat(currentRestaurant.get("rating")) <= 3.5) {
+                    detailRestaurantStar1.setVisibility(View.VISIBLE);
+                    detailRestaurantStar2.setVisibility(View.VISIBLE);
+                    detailRestaurantStar3.setVisibility(View.GONE);
+                } else {
+                    detailRestaurantStar1.setVisibility(View.VISIBLE);
+                    detailRestaurantStar2.setVisibility(View.VISIBLE);
+                    detailRestaurantStar3.setVisibility(View.VISIBLE);
+                }
             }
         }
 
         detailRestaurantName.setText(currentRestaurant.get("place_name"));
         detailRestaurantAddress.setText(currentRestaurant.get("vicinity"));
+
+        detailRestaurantCall.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view) {
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + currentRestaurant.get("phone_number"))));
+            }
+        });
     }
 
 

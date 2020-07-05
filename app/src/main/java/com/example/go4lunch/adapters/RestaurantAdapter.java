@@ -1,5 +1,6 @@
 package com.example.go4lunch.adapters;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,15 +8,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
+import com.example.go4lunch.activities.DetailRestaurantActivity;
 import com.example.go4lunch.model.Restaurant;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import static androidx.core.content.ContextCompat.startActivity;
+import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
+import static com.example.go4lunch.fragments.map.MapFragment.nearbyRestaurantList;
 
 public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.RestaurantHolder>
 {
@@ -44,7 +52,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             holder.openingHour.setText(R.string.restaurant_status_closed);
 
         int proximity = (int) restaurantList.get(position).getDistanceFromUser();
-        holder.proximity.setText(String.valueOf(proximity) + " mètres");
+        holder.proximity.setText(String.valueOf(proximity) + " m");
         holder.workmateNumber.setText(String.valueOf(restaurantList.get(position).getWorkmatesCount()));
 
         if (restaurantList.get(position).getRating() <= 2){
@@ -68,6 +76,21 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
                 .load(restaurantList.get(position).getImageUrl())
                 .apply(new RequestOptions().override(70, 70))
                 .into(holder.restaurantPic);
+
+        holder.cardView.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view) {
+                for (HashMap<String, String> currentRestaurant : nearbyRestaurantList){
+                    if (currentRestaurant.get("place_name") != null)
+                        if (holder.name.getText().toString().compareTo(currentRestaurant.get("place_name")) == 0){
+                            Intent detailRestaurantActivity = new Intent(holder.cardView.getContext(), DetailRestaurantActivity.class);
+                            detailRestaurantActivity.putExtra(RESTAURANT_INDEX, nearbyRestaurantList.indexOf(currentRestaurant));
+                            startActivity(holder.cardView.getContext(),detailRestaurantActivity,null);
+                        }
+                }
+            }
+        });
     }
 
     @Override
@@ -75,10 +98,12 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         return restaurantList.size();
     }
 
+
     public class RestaurantHolder extends RecyclerView.ViewHolder
     {
         private TextView name, address, openingHour, proximity, workmateNumber;
         private ImageView star1, star2, star3, restaurantPic;
+        private CardView cardView;
 
         public RestaurantHolder(@NonNull View itemView) {
             super(itemView);
@@ -93,6 +118,9 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             star2 = itemView.findViewById(R.id.cardview_restaurant_star2);
             star3 = itemView.findViewById(R.id.cardview_restaurant_star3);
             restaurantPic = itemView.findViewById(R.id.cardview_restaurant_pic);
+
+            cardView = itemView.findViewById(R.id.cardview_restaurant);
         }
+
     }
 }

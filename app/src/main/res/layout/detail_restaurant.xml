@@ -7,23 +7,25 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/detail_restaurant_material_card"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:checkable="true"
         android:clickable="true"
         android:focusable="true"
-        android:checkable="true">
+        app:checkedIconTint="#00FF48">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/detail_restaurant_pic"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:srcCompat="@tools:sample/backgrounds/scenic"
-            android:scaleType="fitXY"/>
+            <ImageView
+                android:id="@+id/detail_restaurant_pic"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:scaleType="fitXY"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
             <RelativeLayout
                 android:id="@+id/detail_restaurant_all_infos"
@@ -110,8 +112,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_below="@id/detail_restaurant_layout_infos"
+                    android:orientation="horizontal"
                     android:weightSum="3">
 
                     <Button
@@ -144,18 +146,16 @@
                 </LinearLayout>
 
 
-
             </RelativeLayout>
 
 
-            <androidx.recyclerview.widget.RecyclerView
-                xmlns:android="http://schemas.android.com/apk/res/android"
+            <androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/workmates_recyclerview"
                 android:name="com.example.go4lunch.fragments.WorkmatesFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scrollbars="vertical"
-                android:layout_below="@id/detail_restaurant_all_infos"/>
+                android:layout_below="@id/detail_restaurant_all_infos"
+                android:scrollbars="vertical" />
         </RelativeLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
