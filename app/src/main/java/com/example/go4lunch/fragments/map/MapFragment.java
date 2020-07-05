@@ -3,21 +3,21 @@ package com.example.go4lunch.fragments.map;
 import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -31,7 +31,7 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
-import com.example.go4lunch.activities.MainActivity;
+import com.example.go4lunch.activities.DetailRestaurantActivity;
 import com.example.go4lunch.model.NearbyRestaurants;
 import com.example.go4lunch.model.PlaceDetails;
 import com.example.go4lunch.model.Restaurant;
@@ -55,7 +55,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import static android.content.Context.LOCATION_SERVICE;
 import static com.example.go4lunch.activities.MainActivity.mFusedLocationProviderClient;
@@ -65,14 +64,14 @@ import static com.example.go4lunch.activities.MainActivity.DEFAULT_ZOOM;
 import static com.example.go4lunch.activities.MainActivity.mapView;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnInfoWindowClickListener,
-                                                     NearbyRestaurants.NearbyRestaurantsResponse, PlaceDetails.PlaceDetailsResponse,
+public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, NearbyRestaurants.NearbyRestaurantsResponse, PlaceDetails.PlaceDetailsResponse,
                                                      GoogleMap.OnMarkerClickListener
 {
     private static final String TAG = "MapFragment";
 
     private static final int PERMS_CALL_CODE = 354;
     private static final int PROXIMITY_RADIUS = 10000;
+    public final static String RESTAURANT_INDEX = "RESTAURANT_INDEX";
 
     private LocationManager locationManager;
 
@@ -145,7 +144,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         Log.d(TAG, "onMapReady: Map is ready");
         mMap = googleMap;
         getDeviceLocation();
-        mMap.setOnInfoWindowClickListener(this);
         mMap.setOnMarkerClickListener(this);
         try {
             // Customise the styling of the base map using a JSON object defined
@@ -410,11 +408,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     @Override
-    public void onInfoWindowClick(Marker marker) {
-        // Todo : call DetailRestaurantActivity
-    }
-
-    @Override
     public boolean onMarkerClick(Marker marker) {
 
         final Dialog d = new Dialog(this.getContext());
@@ -423,7 +416,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         TextView restaurantName = d.findViewById(R.id.restaurant_name);
         TextView restaurantAddress = d.findViewById(R.id.restaurant_address);
         ImageView restaurantPic = d.findViewById(R.id.restaurant_pic);
-
+        Button restaurantButton = d.findViewById(R.id.restaurant_detail_button);
+        ImageView star1 = d.findViewById(R.id.info_window_restaurant_star1);
+        ImageView star2 = d.findViewById(R.id.info_window_restaurant_star2);
+        ImageView star3 = d.findViewById(R.id.info_window_restaurant_star3);
                 for (HashMap<String, String> currentRestaurant : nearbyRestaurantList){
                     if (currentRestaurant.get("place_name") != null)
                     if (marker.getTitle().compareTo(currentRestaurant.get("place_name")) == 0){
@@ -433,10 +429,37 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                                 .load(currentRestaurant.get("photo_url"))
                                 .apply(new RequestOptions().override(70, 70))
                                 .into(restaurantPic);
+                        restaurantButton.setOnClickListener(new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View view) {
+                                Intent detailRestaurantActivity = new Intent(getContext(), DetailRestaurantActivity.class);
+                                detailRestaurantActivity.putExtra(RESTAURANT_INDEX, nearbyRestaurantList.indexOf(currentRestaurant));
+                                startActivity(detailRestaurantActivity);
+                            }
+                        });
+
+                        if (Float.parseFloat(currentRestaurant.get("rating")) <= 2){
+                            star1.setVisibility(View.VISIBLE);
+                            star2.setVisibility(View.GONE);
+                            star3.setVisibility(View.GONE);
+                        }
+                        else {
+                            if (Float.parseFloat(currentRestaurant.get("rating")) <= 3.5) {
+                                star1.setVisibility(View.VISIBLE);
+                                star2.setVisibility(View.VISIBLE);
+                                star3.setVisibility(View.GONE);
+                            } else {
+                                star1.setVisibility(View.VISIBLE);
+                                star2.setVisibility(View.VISIBLE);
+                                star3.setVisibility(View.VISIBLE);
+                            }
+                        }
                     }
                 }
 
         d.show();
+
         return true;
     }
 }

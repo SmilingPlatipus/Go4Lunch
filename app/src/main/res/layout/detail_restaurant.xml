@@ -22,7 +22,8 @@
             android:layout_width="match_parent"
             android:layout_height="250dp"
             app:layout_constraintStart_toStartOf="parent"
-            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+            tools:srcCompat="@tools:sample/backgrounds/scenic"
+            android:scaleType="fitXY"/>
 
             <RelativeLayout
                 android:id="@+id/detail_restaurant_all_infos"

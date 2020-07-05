@@ -21,4 +21,5 @@
     <string name="restaurant_status_opened">Ouvert</string>
     <string name="restaurant_status_closed">Fermé</string>
     <string name="restaurant_proximity_metric">mètres</string>
+    <string name="more_details">voir plus de détails</string>
 </resources>

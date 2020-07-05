@@ -45,6 +45,9 @@
         <!-- SigninActivity purposes -->
         <activity android:name=".activities.SigninActivity"/>
 
+        <!-- DetailRestaurantActivity purposes -->
+        <activity android:name=".activities.DetailRestaurantActivity"
+            android:parentActivityName=".activities.MainActivity"/>
 
     </application>
 
