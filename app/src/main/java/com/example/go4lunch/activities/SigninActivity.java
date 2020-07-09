@@ -41,6 +41,7 @@ public class SigninActivity extends AppCompatActivity
     }
 
     private void signIn(){
+        // Todo : signin with Twitter and email/password
         Log.d(TAG, "signIn: signin in with Google and FB");
         startActivityForResult(
                 AuthUI.getInstance()

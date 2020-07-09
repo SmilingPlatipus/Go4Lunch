@@ -148,14 +148,13 @@
 
             </RelativeLayout>
 
-
-            <androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/workmates_recyclerview"
-                android:name="com.example.go4lunch.fragments.WorkmatesFragment"
+            <fragment
+                android:id="@+id/detail_restaurant_fragment"
+                android:name="com.example.go4lunch.fragments.detailrestaurant.DetailRestaurantFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/detail_restaurant_all_infos"
-                android:scrollbars="vertical" />
+                android:layout_below="@id/detail_restaurant_all_infos"/>
+
         </RelativeLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

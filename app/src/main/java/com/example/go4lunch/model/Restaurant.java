@@ -21,6 +21,7 @@ public class Restaurant
     int workmatesCount;
     float rating;
     boolean isOpenedNow;
+    boolean isChosen;
 
 
     public Restaurant() {
@@ -38,6 +39,7 @@ public class Restaurant
         this.workmatesCount = 0;
         this.rating = Float.parseFloat(restaurant.get("rating"));
         this.isOpenedNow = Boolean.parseBoolean(restaurant.get("open_now"));
+        this.isChosen = false;
 
         float [] result = new float[1];
         Location.distanceBetween(latLng.getLatitude(),latLng.getLongitude(),Double.parseDouble(restaurant.get("lat")),Double.parseDouble(restaurant.get("lng")),result);
@@ -142,5 +144,13 @@ public class Restaurant
 
     public void setOpenedNow(boolean openedNow) {
         isOpenedNow = openedNow;
+    }
+
+    public boolean isChosen() {
+        return isChosen;
+    }
+
+    public void setChosen(boolean chosen) {
+        isChosen = chosen;
     }
 }

@@ -24,15 +24,15 @@
     <string name="logged_in_failed_no_network">There is no available network</string>
     <string name="logged_in_failed_unknown_error">An unknown error occured</string>
     <string name="user_current_location_not_found">Unable to find current location</string>
+    <string name="log_out">You have been logged out</string>
 
     <!-- Bottom navigationview strings -->
     <string name="title_map">Map</string>
     <string name="title_restaurants">Restaurants list</string>
     <string name="title_workmates">Workmates available</string>
 
-    <!-- Recyclerview strings -->
+    <!-- Recyclerview workmates -->
     <string name="workmate_not_chosen">hasn\'t decided yet</string>
-    <string name="log_out">You have been logged out</string>
 
     <!-- Custom Marker URL -->
     <string name="custom_marker_url" translatable="false">https://cdn.onlinewebfonts.com/svg/img_57428.png</string>
@@ -41,7 +41,7 @@
     <string name="detail_restaurant_phone">CALL</string>
     <string name="detail_restaurant_like">LIKE</string>
     <string name="detail_restaurant_website">WEBSITE</string>
-    <string name="searchbar_restaurant_hint">Search for a place</string>
+    <string name="searchbar_restaurant_hint">Search for a restaurant</string>
     <string name="more_details">see more details</string>
 
     <!-- Recyclerview Restaurant -->

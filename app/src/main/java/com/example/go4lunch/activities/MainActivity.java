@@ -11,7 +11,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
@@ -75,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 {
     public static final String TAG = "MainActivity";
     public static final float DEFAULT_ZOOM = 15f;
+    private static final double SOUTHWEST_LAT_BOUND = 0.055;
+    private static final double NORTHEAST_LNG_BOUND = 0.075;
 
     // The firebase user logged in the application
     FirebaseUser user;
@@ -106,10 +107,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // Firebase database reference
     public static FirebaseFirestore firebaseFirestore;
-    private CollectionReference workmatesReference;
+    public static CollectionReference workmatesReference;
 
     // Firestore options for workmates RecyclerView
     public static FirestoreRecyclerOptions<Workmate> optionsForWorkmatesRecyclerView;
+    public static FirestoreRecyclerOptions<Workmate> optionsForWorkmatesEatingInThisRestaurant;
 
 
 
@@ -163,6 +165,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         optionsForWorkmatesRecyclerView = new FirestoreRecyclerOptions.Builder<Workmate>()
                 .setQuery(query,Workmate.class)
                 .build();
+
+
+        if (checkCurrentUser() == null ) {
+            Intent intent = new Intent(MainActivity.this, SigninActivity.class);
+            startActivity(intent);
+        }
+        else {
+            getUserProfile();
+            getProfileData();
+            applyProfileDataOnHeader();
+        }
 
     }
 
@@ -223,16 +236,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // Todo : restrictions not working
                 RectangularBounds bounds = RectangularBounds.newInstance(
-                        new LatLng(44.485161, 1.541838),
-                        new LatLng(44.485181, 1.351122)
+                        new LatLng(lastKnownLocation.getLatitude() - SOUTHWEST_LAT_BOUND, lastKnownLocation.getLongitude() - NORTHEAST_LNG_BOUND),
+                        new LatLng(lastKnownLocation.getLatitude() + SOUTHWEST_LAT_BOUND , lastKnownLocation.getLongitude() + NORTHEAST_LNG_BOUND)
                         );
                 // Use the builder to create a FindAutocompletePredictionsRequest.
                 FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
                         .setLocationRestriction(bounds)
                         .setOrigin(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()))
-                        .setTypeFilter(TypeFilter.ADDRESS)
+                        .setTypeFilter(TypeFilter.ESTABLISHMENT)
                         .setSessionToken(token)
                         .setCountries("FR")
                         .setQuery(charSequence.toString())
@@ -249,7 +261,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 List <String> suggestionsList = new ArrayList<>();
                                 for (int i = 0; i < predictionList.size();i++){
                                     AutocompletePrediction prediction = predictionList.get(i);
-                                    suggestionsList.add(prediction.getFullText(null).toString());
+                                    if(prediction.getPlaceTypes().contains(Place.Type.RESTAURANT)) {
+                                        suggestionsList.add(prediction.getFullText(null).toString());
+                                    }
                                 }
                                 materialSearchBar.updateLastSuggestions(suggestionsList);
                                 if (!materialSearchBar.isSuggestionsVisible()){
@@ -340,21 +354,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onBackPressed();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        if (checkCurrentUser() == null ) {
-            Intent intent = new Intent(MainActivity.this, SigninActivity.class);
-            startActivity(intent);
-        }
-        else {
-            getUserProfile();
-            getProfileData();
-            applyProfileDataOnHeader();
-        }
-    }
-
     public FirebaseUser checkCurrentUser() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -406,9 +405,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Retrieving firstname and lastname
         firstName = userIdentity.substring(0,lastSpacePosition);
         lastName = userIdentity.substring(lastSpacePosition+1);
-
-
-
     }
 
     public void applyProfileDataOnHeader(){

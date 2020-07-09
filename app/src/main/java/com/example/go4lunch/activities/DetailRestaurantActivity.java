@@ -30,11 +30,13 @@ public class DetailRestaurantActivity extends AppCompatActivity
     private Button detailRestaurantCall, detailRestaurantWebsite, detailRestaurantLike;
     static Intent intent = new Intent();
     int restaurantIndex;
+    HashMap<String, String> currentRestaurant;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.detail_restaurant);
+
 
         detailRestaurantPic = findViewById(R.id.detail_restaurant_pic);
         detailRestaurantStar1 = findViewById(R.id.detail_restaurant_star1);
@@ -64,11 +66,10 @@ public class DetailRestaurantActivity extends AppCompatActivity
     public void initDetailRestaurantActivity() {
         intent = getIntent();
         restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX, 0);
+        currentRestaurant = nearbyRestaurantList.get(restaurantIndex);
     }
 
     private void initDetailRestaurantWidgets() {
-        HashMap<String, String> currentRestaurant;
-        currentRestaurant = nearbyRestaurantList.get(restaurantIndex);
         Glide.with(this)
                 .load(currentRestaurant.get("photo_url"))
                 .apply(new RequestOptions().override(70, 70))
@@ -112,6 +113,20 @@ public class DetailRestaurantActivity extends AppCompatActivity
                 startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + currentRestaurant.get("phone_number"))));
             }
         });
+
+        detailRestaurantWebsite.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view) {
+                goToUrl(currentRestaurant.get("website"));
+            }
+        });
+    }
+
+    private void goToUrl (String url) {
+        Uri uriUrl = Uri.parse(url);
+        Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
+        startActivity(launchBrowser);
     }
 
 

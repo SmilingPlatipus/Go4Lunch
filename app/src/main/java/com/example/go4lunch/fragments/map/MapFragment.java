@@ -35,6 +35,8 @@ import com.example.go4lunch.activities.DetailRestaurantActivity;
 import com.example.go4lunch.model.NearbyRestaurants;
 import com.example.go4lunch.model.PlaceDetails;
 import com.example.go4lunch.model.Restaurant;
+import com.example.go4lunch.model.Workmate;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -48,6 +50,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.Query;
 
 
 import java.io.IOException;
@@ -62,6 +65,8 @@ import static com.example.go4lunch.activities.MainActivity.mMap;
 import static com.example.go4lunch.activities.MainActivity.lastKnownLocation;
 import static com.example.go4lunch.activities.MainActivity.DEFAULT_ZOOM;
 import static com.example.go4lunch.activities.MainActivity.mapView;
+import static com.example.go4lunch.activities.MainActivity.optionsForWorkmatesEatingInThisRestaurant;
+import static com.example.go4lunch.activities.MainActivity.workmatesReference;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener, NearbyRestaurants.NearbyRestaurantsResponse, PlaceDetails.PlaceDetailsResponse,
@@ -429,8 +434,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                         {
                             @Override
                             public void onClick(View view) {
+                                // Starting detailRestaurantActivity, and transmiting currentRestaurant
                                 Intent detailRestaurantActivity = new Intent(getContext(), DetailRestaurantActivity.class);
                                 detailRestaurantActivity.putExtra(RESTAURANT_INDEX, nearbyRestaurantList.indexOf(currentRestaurant));
+
+                                // Setting options for cloud firestore
+                                Query query = workmatesReference.whereEqualTo("choice", currentRestaurant.get("place_id"));
+                                // Recycler Options
+                                optionsForWorkmatesEatingInThisRestaurant = new FirestoreRecyclerOptions.Builder<Workmate>()
+                                        .setQuery(query,Workmate.class)
+                                        .build();
+
                                 startActivity(detailRestaurantActivity);
                             }
                         });
