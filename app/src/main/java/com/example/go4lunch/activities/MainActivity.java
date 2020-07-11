@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.multidex.MultiDex;
@@ -12,9 +13,13 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -70,12 +75,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener
 {
     public static final String TAG = "MainActivity";
     public static final float DEFAULT_ZOOM = 15f;
     private static final double SOUTHWEST_LAT_BOUND = 0.055;
     private static final double NORTHEAST_LNG_BOUND = 0.075;
+    private static final int ACCESS_FINE_LOCATION_CODE = 10;
+    private static final int ACCESS_COARSE_LOCATION_CODE = 11;
+
+    public static LocationManager locationManager;
 
     // The firebase user logged in the application
     FirebaseUser user;
@@ -112,8 +121,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // Firestore options for workmates RecyclerView
     public static FirestoreRecyclerOptions<Workmate> optionsForWorkmatesRecyclerView;
     public static FirestoreRecyclerOptions<Workmate> optionsForWorkmatesEatingInThisRestaurant;
-
-
 
     // Multidex purposes
     @Override
@@ -175,9 +182,84 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getUserProfile();
             getProfileData();
             applyProfileDataOnHeader();
+            checkPermissions();
+        }
+    }
+
+
+    private void checkPermissions() {
+        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this);
+                return;
+            }
+            if (locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 10000, 0, this);
+                return;
+            }
+            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0, this);
+                return;
+            }
+        }
+        else {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION
+            }, ACCESS_FINE_LOCATION_CODE);
+            return;
         }
 
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this);
+                return;
+            }
+            if (locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 10000, 0, this);
+                return;
+            }
+            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0, this);
+                return;
+            }
+        }
+        else {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            }, ACCESS_COARSE_LOCATION_CODE);
+            return;
+        }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == ACCESS_FINE_LOCATION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(MainActivity.this,
+                               "Access fine location permission Granted",
+                               Toast.LENGTH_SHORT)
+                        .show();
+            }
+            else
+                checkPermissions();
+        }
+
+        if (requestCode == ACCESS_COARSE_LOCATION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(MainActivity.this,
+                               "Access coarse location permission Granted",
+                               Toast.LENGTH_SHORT)
+                        .show();
+            }
+            else
+                checkPermissions();
+        }
+    }
+
 
     public void initProfileInformations(){
         // Initializing drawer header
@@ -431,7 +513,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.log_out:
                 logOut();
-                onStart();
+                Intent intent = new Intent(MainActivity.this, SigninActivity.class);
+                startActivity(intent);
                 break;
         }
         return false;
@@ -445,5 +528,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Toast.makeText(getApplicationContext(),getString(R.string.log_out),Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
     }
 }

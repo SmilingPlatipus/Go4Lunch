@@ -18,8 +18,6 @@ import static com.example.go4lunch.activities.MainActivity.optionsForWorkmatesRe
 
 public class WorkmatesFragment extends Fragment
 {
-
-
     // Workmates RecyclerView
     private RecyclerView mWorkmates;
     private FirestoreRecyclerAdapter adapter;
@@ -36,10 +34,8 @@ public class WorkmatesFragment extends Fragment
         mWorkmates.setLayoutManager(new LinearLayoutManager(getActivity()));
         mWorkmates.setAdapter(adapter);
 
-
         return root;
     }
-
 
     @Override
     public void onPause() {

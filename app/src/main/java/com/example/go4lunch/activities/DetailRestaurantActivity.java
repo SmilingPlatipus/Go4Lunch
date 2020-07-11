@@ -9,7 +9,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -25,6 +27,7 @@ import static com.example.go4lunch.fragments.map.MapFragment.nearbyRestaurantLis
 
 public class DetailRestaurantActivity extends AppCompatActivity
 {
+    private static final int CALL_PHONE_PERMISSION_CODE = 12;
     private ImageView detailRestaurantPic, detailRestaurantStar1, detailRestaurantStar2, detailRestaurantStar3;
     private TextView detailRestaurantName, detailRestaurantAddress;
     private Button detailRestaurantCall, detailRestaurantWebsite, detailRestaurantLike;
@@ -62,6 +65,7 @@ public class DetailRestaurantActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
     }
+
 
     public void initDetailRestaurantActivity() {
         intent = getIntent();
@@ -101,16 +105,13 @@ public class DetailRestaurantActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
+                    startActivity(new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", currentRestaurant.get("phone_number"), null)));
                 }
-                startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + currentRestaurant.get("phone_number"))));
+                else
+                    ActivityCompat.requestPermissions(DetailRestaurantActivity.this, new String[]{
+                            Manifest.permission.CALL_PHONE
+                    }, CALL_PHONE_PERMISSION_CODE);
+
             }
         });
 
@@ -122,6 +123,19 @@ public class DetailRestaurantActivity extends AppCompatActivity
             }
         });
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            Toast.makeText(DetailRestaurantActivity.this,
+                           "Phone Call permission Granted",
+                           Toast.LENGTH_SHORT)
+                    .show();
+
+    }
+
 
     private void goToUrl (String url) {
         Uri uriUrl = Uri.parse(url);
