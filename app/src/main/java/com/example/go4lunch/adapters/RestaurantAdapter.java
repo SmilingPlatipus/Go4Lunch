@@ -16,12 +16,17 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
 import com.example.go4lunch.activities.DetailRestaurantActivity;
 import com.example.go4lunch.model.Restaurant;
+import com.example.go4lunch.model.Workmate;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import static androidx.core.content.ContextCompat.startActivity;
+import static com.example.go4lunch.activities.MainActivity.optionsForWorkmatesEatingInThisRestaurant;
+import static com.example.go4lunch.activities.MainActivity.workmatesReference;
 import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
 import static com.example.go4lunch.fragments.map.MapFragment.nearbyRestaurantList;
 
@@ -86,6 +91,14 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
                         if (holder.name.getText().toString().compareTo(currentRestaurant.get("place_name")) == 0){
                             Intent detailRestaurantActivity = new Intent(holder.cardView.getContext(), DetailRestaurantActivity.class);
                             detailRestaurantActivity.putExtra(RESTAURANT_INDEX, nearbyRestaurantList.indexOf(currentRestaurant));
+
+                            // Setting options for cloud firestore
+                            Query query = workmatesReference.whereEqualTo("choice", currentRestaurant.get("place_id"));
+                            // Recycler Options
+                            optionsForWorkmatesEatingInThisRestaurant = new FirestoreRecyclerOptions.Builder<Workmate>()
+                                    .setQuery(query,Workmate.class)
+                                    .build();
+
                             startActivity(holder.cardView.getContext(),detailRestaurantActivity,null);
                         }
                 }

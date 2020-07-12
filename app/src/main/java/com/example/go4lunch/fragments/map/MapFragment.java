@@ -62,7 +62,6 @@ import static com.example.go4lunch.activities.MainActivity.DEFAULT_ZOOM;
 import static com.example.go4lunch.activities.MainActivity.mapView;
 import static com.example.go4lunch.activities.MainActivity.optionsForWorkmatesEatingInThisRestaurant;
 import static com.example.go4lunch.activities.MainActivity.workmatesReference;
-import static com.example.go4lunch.activities.MainActivity.locationManager;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 
