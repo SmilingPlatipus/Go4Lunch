@@ -2,6 +2,7 @@ package com.example.go4lunch.model;
 
 import android.location.Location;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.annotation.Nullable;
@@ -18,6 +19,7 @@ public class Restaurant
 
     @Nullable int photoMaxWidth;
     double distanceFromUser;
+    double latitude, longitude;
     int workmatesCount;
     float rating;
     boolean isOpenedNow;
@@ -40,12 +42,31 @@ public class Restaurant
         this.rating = Float.parseFloat(restaurant.get("rating"));
         this.isOpenedNow = Boolean.parseBoolean(restaurant.get("open_now"));
         this.isChosen = false;
+        this.latitude = Double.parseDouble(restaurant.get("lat"));
+        this.longitude = Double.parseDouble(restaurant.get("lng"));
 
         float [] result = new float[1];
         Location.distanceBetween(latLng.getLatitude(),latLng.getLongitude(),Double.parseDouble(restaurant.get("lat")),Double.parseDouble(restaurant.get("lng")),result);
         this.distanceFromUser = (double) result[0];
     }
 
+    public HashMap<String, String> getInstanceAsHashMap(){
+        HashMap<String, String> restaurant = new HashMap<>();
+        restaurant.put("reference",this.id);
+        restaurant.put("place_id",this.placeId);
+        restaurant.put("place_name",this.name);
+        restaurant.put("vicinity",this.address);
+        restaurant.put("phone_number",this.phoneNumber);
+        restaurant.put("website",this.websiteUrl);
+        restaurant.put("photo_url",this.imageUrl);
+        restaurant.put("photo_width", String.valueOf((this.photoMaxWidth)));
+        restaurant.put("rating",String.valueOf(this.rating));
+        restaurant.put("open_now",String.valueOf(this.isOpenedNow));
+        restaurant.put("lat",String.valueOf(this.latitude));
+        restaurant.put("lng",String.valueOf(this.longitude));
+
+        return restaurant;
+}
 
     public String getId() {
         return id;
@@ -152,5 +173,21 @@ public class Restaurant
 
     public void setChosen(boolean chosen) {
         isChosen = chosen;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 }

@@ -23,7 +23,7 @@ import com.example.go4lunch.R;
 import java.util.HashMap;
 
 import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
-import static com.example.go4lunch.fragments.map.MapFragment.nearbyRestaurantList;
+import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
 
 public class DetailRestaurantActivity extends AppCompatActivity
 {
@@ -74,11 +74,18 @@ public class DetailRestaurantActivity extends AppCompatActivity
     }
 
     private void initDetailRestaurantWidgets() {
-        Glide.with(this)
-                .load(currentRestaurant.get("photo_url"))
-                .apply(new RequestOptions().override(70, 70))
-                .into(detailRestaurantPic);
-
+        if (currentRestaurant.get("photo_url").compareTo("null") != 0) {
+            Glide.with(this)
+                    .load(currentRestaurant.get("photo_url"))
+                    .apply(new RequestOptions().override(70, 70))
+                    .into(detailRestaurantPic);
+        }
+        else{
+            Glide.with(this)
+                    .load("https://www.recia.fr/wp-content/uploads/2019/09/no_image.png")
+                    .apply(new RequestOptions().override(70, 70))
+                    .into(detailRestaurantPic);
+        }
         if (currentRestaurant.get("rating") != null) {
             if (Float.parseFloat(currentRestaurant.get("rating")) <= 2) {
                 detailRestaurantStar1.setVisibility(View.VISIBLE);

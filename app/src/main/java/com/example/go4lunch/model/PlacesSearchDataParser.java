@@ -22,8 +22,8 @@ public class PlacesSearchDataParser
 
     private HashMap<String, String> getPlace(JSONObject googlePlaceJSON){
         HashMap<String, String> googlePlacesMap = new HashMap<>();
-        String placeName = "-NA-";
-        String vicinity = "-NA-";
+        String placeName = "";
+        String vicinity = "";
         String latitude = "";
         String longitude = "";
         String placeId = "";
@@ -34,10 +34,10 @@ public class PlacesSearchDataParser
         String openNow = "";
 
         try {
-            if (!googlePlaceJSON.isNull("name")){
+            if (!googlePlaceJSON.getString("name").isEmpty()){
                 placeName = googlePlaceJSON.getString("name");
             }
-            if (!googlePlaceJSON.isNull("vicinity")){
+            if (!googlePlaceJSON.getString("vicinity").isEmpty()){
                 vicinity = googlePlaceJSON.getString("vicinity");
             }
             latitude = googlePlaceJSON.getJSONObject("geometry").getJSONObject("location").getString("lat");
@@ -46,15 +46,6 @@ public class PlacesSearchDataParser
 
             placeId = googlePlaceJSON.getString("place_id");
             reference = googlePlaceJSON.getString("reference");
-            if (!googlePlaceJSON.getJSONArray("photos").getJSONObject(0).isNull("photo_reference")) {
-                photoReference = googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
-                photoWidth = googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("width");
-            }
-            if (!googlePlaceJSON.isNull("rating")){
-                rating = googlePlaceJSON.getString("rating");
-            }
-
-            openNow = googlePlaceJSON.getJSONObject("opening_hours").getString("open_now");
 
             // Preparing the GooglePlacesMap to return
             googlePlacesMap.put("place_name",placeName);
@@ -62,16 +53,57 @@ public class PlacesSearchDataParser
             googlePlacesMap.put("lat",latitude);
             googlePlacesMap.put("lng",longitude);
             googlePlacesMap.put("place_id",placeId);
-            googlePlacesMap.put("photo_width", photoWidth);
-            googlePlacesMap.put("photo_reference",photoReference);
-            googlePlacesMap.put("rating",rating);
             googlePlacesMap.put("reference",reference);
-            googlePlacesMap.put("open_now",openNow);
-
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        try {
+            if (googlePlaceJSON.has("rating")){
+                rating = googlePlaceJSON.getString("rating");
+                googlePlacesMap.put("rating",rating);
+            }
+        } catch (JSONException e) {
+            rating = "0";
+            googlePlacesMap.put("rating",rating);
+            e.printStackTrace();
+        }
+
+
+        try {
+            if (googlePlaceJSON.getJSONObject("opening_hours").has("open_now")) {
+                openNow = googlePlaceJSON.getJSONObject("opening_hours").getString("open_now");
+                googlePlacesMap.put("open_now",openNow);
+            }
+        } catch (JSONException e) {
+            openNow = "false";
+            googlePlacesMap.put("open_now",openNow);
+            e.printStackTrace();
+        }
+
+        try {
+            if (!googlePlaceJSON.getJSONArray("photos").getJSONObject(0).isNull("photo_reference")) {
+                photoReference = googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
+                googlePlacesMap.put("photo_reference", photoReference);
+            }
+        } catch (JSONException e) {
+            photoReference = "null";
+            googlePlacesMap.put("photo_reference",photoReference);
+            e.printStackTrace();
+        }
+
+        try {
+            if (!googlePlaceJSON.getJSONArray("photos").getJSONObject(0).isNull("width")) {
+                photoWidth = googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("width");
+                googlePlacesMap.put("photo_width", photoWidth);
+            }
+        } catch (JSONException e) {
+            photoWidth = "0";
+            googlePlacesMap.put("photo_width", photoWidth);
+            e.printStackTrace();
+        }
+
         return googlePlacesMap;
     }
 

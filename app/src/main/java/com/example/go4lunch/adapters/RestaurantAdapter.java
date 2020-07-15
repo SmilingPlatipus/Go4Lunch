@@ -28,7 +28,7 @@ import static androidx.core.content.ContextCompat.startActivity;
 import static com.example.go4lunch.activities.MainActivity.optionsForWorkmatesEatingInThisRestaurant;
 import static com.example.go4lunch.activities.MainActivity.workmatesReference;
 import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
-import static com.example.go4lunch.fragments.map.MapFragment.nearbyRestaurantList;
+import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
 
 public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.RestaurantHolder>
 {
@@ -76,12 +76,18 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
                 holder.star3.setVisibility(View.VISIBLE);
             }
         }
-
+    if (restaurantList.get(position).getImageUrl().compareTo("null") != 0) {
         Glide.with(holder.restaurantPic.getContext())
                 .load(restaurantList.get(position).getImageUrl())
                 .apply(new RequestOptions().override(70, 70))
                 .into(holder.restaurantPic);
-
+    }
+    else {
+        Glide.with(holder.restaurantPic.getContext())
+                .load("https://www.recia.fr/wp-content/uploads/2019/09/no_image.png")
+                .apply(new RequestOptions().override(70, 70))
+                .into(holder.restaurantPic);
+    }
         holder.cardView.setOnClickListener(new View.OnClickListener()
         {
             @Override

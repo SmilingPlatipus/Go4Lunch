@@ -40,6 +40,13 @@ public class SigninActivity extends AppCompatActivity
         super.onStart();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Intent intent = new Intent(SigninActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
+
     private void signIn(){
         // Todo : signin with Twitter and email/password
         Log.d(TAG, "signIn: signin in with Google and FB");

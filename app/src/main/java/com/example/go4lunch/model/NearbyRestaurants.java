@@ -1,19 +1,12 @@
 package com.example.go4lunch.model;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
-
-import static com.example.go4lunch.fragments.map.MapFragment.getCustomMarkerUrl;
-import static com.example.go4lunch.fragments.map.MapFragment.nearbyRestaurantList;
-import static com.example.go4lunch.fragments.map.MapFragment.fakeConfig;
+import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
+import static com.example.go4lunch.activities.MainActivity.fakeConfig;
 
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 /***************************************************************************************************************************************************************************************************************************
 *                                                                                                                                                                                                                          *

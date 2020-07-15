@@ -16,7 +16,7 @@ import java.util.HashMap;
 public class PlacesDetailsDataParser
 {
     public HashMap<String, String> getRestaurantDetails(String jsonData) throws JSONException {
-        HashMap<String, String> phoneRow = new HashMap<>();
+        HashMap<String, String> detailRow = new HashMap<>();
 
         String phoneNumber = "";
         String website = "";
@@ -24,15 +24,14 @@ public class PlacesDetailsDataParser
 
         if (!jsonObject.getJSONObject("result").getString("formatted_phone_number").isEmpty()) {
             phoneNumber = jsonObject.getJSONObject("result").getString("formatted_phone_number");
+            detailRow.put("phone_number",phoneNumber);
         }
 
         if (!jsonObject.getJSONObject("result").getString("website").isEmpty()) {
             website = jsonObject.getJSONObject("result").getString("website");
+            detailRow.put("website",website);
         }
-        phoneRow.put("phone_number",phoneNumber);
-        phoneRow.put("website",website);
 
-
-        return phoneRow;
+        return detailRow;
     }
 }

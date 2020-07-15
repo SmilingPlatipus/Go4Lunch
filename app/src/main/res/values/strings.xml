@@ -34,9 +34,6 @@
     <!-- Recyclerview workmates -->
     <string name="workmate_not_chosen">hasn\'t decided yet</string>
 
-    <!-- Custom Marker URL -->
-    <string name="custom_marker_url" translatable="false">https://cdn.onlinewebfonts.com/svg/img_57428.png</string>
-
     <!-- Detail Restaurant View -->
     <string name="detail_restaurant_phone">CALL</string>
     <string name="detail_restaurant_like">LIKE</string>
@@ -48,5 +45,8 @@
     <string name="restaurant_status_opened">Opened</string>
     <string name="restaurant_status_closed">Closed</string>
     <string name="restaurant_proximity_metric">meters</string>
+
+    <!-- Google Map purposes -->
+    <string name="custom_marker_url" translatable="false">https://cdn.onlinewebfonts.com/svg/img_57428.png</string>
 
 </resources>
