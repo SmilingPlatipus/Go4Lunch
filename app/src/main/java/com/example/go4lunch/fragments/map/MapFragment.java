@@ -26,7 +26,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
 import com.example.go4lunch.activities.DetailRestaurantActivity;
-import com.example.go4lunch.model.PlaceDetails;
 import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.model.Workmate;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;

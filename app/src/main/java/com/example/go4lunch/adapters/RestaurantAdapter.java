@@ -84,7 +84,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     }
     else {
         Glide.with(holder.restaurantPic.getContext())
-                .load("https://www.recia.fr/wp-content/uploads/2019/09/no_image.png")
+                .load("https://www.allianceplast.com/wp-content/uploads/2017/11/no-image.png")
                 .apply(new RequestOptions().override(70, 70))
                 .into(holder.restaurantPic);
     }

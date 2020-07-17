@@ -23,10 +23,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:defaultNavHost="true"
+            app:layout_constraintBottom_toTopOf="@id/bottom_nav_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/toolbar"
-            app:navGraph="@navigation/mobile_navigation"/>
+            app:navGraph="@navigation/mobile_navigation" />
 
         <com.mancj.materialsearchbar.MaterialSearchBar
             android:id="@+id/searchBar"

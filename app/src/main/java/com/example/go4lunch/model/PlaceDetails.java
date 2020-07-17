@@ -41,7 +41,7 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
         currentIndex = (int) objects[2];
         DownloadUrl downloadUrl = new DownloadUrl();
 
-        Log.i(TAG, "doInBackground: treating place number : " + currentIndex);
+        Log.i(TAG, "treating place number : " + currentIndex + " place name : " + nearbyRestaurantList.get(currentIndex).get("place_name"));
 
         try {
             googlePlaceDetails = downloadUrl.readUrl(placeDetailsRequest);
@@ -61,6 +61,7 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
             buffer.put("phone_number", placeDetailsRequest.get("phone_number"));
             buffer.put("website", placeDetailsRequest.get("website"));
             buffer.put("photo_url",placePhotoRequest);
+            Log.i(TAG, "onPostExecute: PlacesDetailsDataParser value for photo_url is : " + buffer.get("photo_url"));
             nearbyRestaurantList.set(currentIndex,buffer);
             callback.onPlaceDetailsCompleted(buffer,customRestaurantBitmap);
         } catch (JSONException e) {

@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static List<Restaurant> nearbyRestaurant = new ArrayList<>();
 
     // This is a fake configuration for local testing purposes
-    public static boolean fakeConfig = true;
+    public static boolean fakeConfig = false;
     public static int tokenNumber = 2;
 
     // Google Places autocomplete purpose
@@ -352,6 +352,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else
                 checkPermissions();
         }
+    }
+
+    protected LocationRequest createLocationRequest() {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(5000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        return locationRequest;
     }
 
     public void initProfileInformations() {
@@ -708,7 +717,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         markerOptions.snippet(vicinity);
 
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(mIcon,100,150,false);
-        changeBitmapTintTo(scaledBitmap, Color.CYAN);
+        changeBitmapTintTo(scaledBitmap, Color.RED);
         mIcon = scaledBitmap;
         BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(mIcon);
 
@@ -768,17 +777,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }while(currentRestaurant != nearbyRestaurantList.get(indexOfRestaurantToGetDetails));
 
-        while (iterator.hasNext()) {
-                Object transferObject[] = new Object[3];
-                transferObject[0] = (String) makePlacesDetailsRequest(currentRestaurant.get("place_id"));
-                transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"), currentRestaurant.get("photo_width"));
-                transferObject[2] = (int) indexOfRestaurantToGetDetails;
-                PlaceDetails placesDetails = new PlaceDetails(this);
-                placesDetails.execute(transferObject);
-                indexOfRestaurantToGetDetails++;
-                currentRestaurant = (HashMap<String, String>) iterator.next();
-        }
-        Log.i(TAG, "onProcessFinished: task : " + NearbyRestaurants.pageCount + " ending...");
+         do{
+            Log.i(TAG, "onNearbyRestaurantsCompleted: launching PlacesDetails task number : " + indexOfRestaurantToGetDetails);
+            Object transferObject[] = new Object[3];
+            transferObject[0] = (String) makePlacesDetailsRequest(currentRestaurant.get("place_id"));
+            transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"), currentRestaurant.get("photo_width"));
+            transferObject[2] = (int) indexOfRestaurantToGetDetails;
+            PlaceDetails placesDetails = new PlaceDetails(this);
+            placesDetails.execute(transferObject);
+            indexOfRestaurantToGetDetails++;
+            currentRestaurant = (HashMap<String, String>) iterator.next();
+        }while (iterator.hasNext());
+
+         // Treating the last restaurant of the page, then treating another page
+        Log.i(TAG, "onNearbyRestaurantsCompleted: launching PlacesDetails task number : " + indexOfRestaurantToGetDetails);
+        Object transferObject[] = new Object[3];
+        transferObject[0] = (String) makePlacesDetailsRequest(currentRestaurant.get("place_id"));
+        transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"), currentRestaurant.get("photo_width"));
+        transferObject[2] = (int) indexOfRestaurantToGetDetails;
+        PlaceDetails placesDetails = new PlaceDetails(this);
+        placesDetails.execute(transferObject);
+        indexOfRestaurantToGetDetails++;
+
+        Log.i(TAG, "onNearbyRestaurantsCompleted : page number : " + NearbyRestaurants.pageCount + " ending...");
 
         // Then making custom Places Search request with nextpagetoken in another thread
         if (nextPageToken != null) {
@@ -788,7 +809,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 dataTransfer[1] = getPlacesSearchNextPageUrl(nextPageToken);
 
                 NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
-                Log.i(TAG, "onProcessFinished: task : " + NearbyRestaurants.pageCount + " executing...");
+                Log.i(TAG, "onNearbyRestaurantsCompleted : page number : " + NearbyRestaurants.pageCount + " executing...");
                 nearbyRestaurants.execute(dataTransfer);
             }
             else {
@@ -797,7 +818,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 dataTransfer[1] = loadJSONFromAsset(getApplicationContext(),"places_search_results_cahors_page_" + tokenNumber);
 
                 NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
-                Log.i(TAG, "onProcessFinished: task : " + NearbyRestaurants.pageCount + " executing...");
+                Log.i(TAG, "onNearbyRestaurantsCompleted : page number : " + NearbyRestaurants.pageCount + " executing...");
                 nearbyRestaurants.execute(dataTransfer);
                 tokenNumber++;
             }
@@ -831,6 +852,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onPlaceDetailsCompleted(HashMap<String, String> googlePlace, Bitmap mIcon) {
+        Log.i(TAG, "onPlaceDetailsCompleted: adding restaurant : " + googlePlace.get("place_name"));
         // Adding markers, one by one to the map
         addCustomRestaurantMarker(googlePlace,mIcon);
         // Finally creating one by one our restaurants
@@ -857,12 +879,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    protected LocationRequest createLocationRequest() {
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(5000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        return locationRequest;
-    }
 }

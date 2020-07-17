@@ -1,5 +1,7 @@
 package com.example.go4lunch.model;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,6 +18,7 @@ import java.util.List;
 ****************************************************************************************************************************************************************************************************************************/
 public class PlacesSearchDataParser
 {
+    private static final String TAG = "PlacesSearchDataParser";
     String nextPageToken = null;
 
     // Parsing each place details, fetching all informations needed
@@ -60,7 +63,7 @@ public class PlacesSearchDataParser
         }
 
         try {
-            if (googlePlaceJSON.has("rating")){
+            if (!googlePlaceJSON.getString("rating").isEmpty()){
                 rating = googlePlaceJSON.getString("rating");
                 googlePlacesMap.put("rating",rating);
             }
@@ -72,7 +75,7 @@ public class PlacesSearchDataParser
 
 
         try {
-            if (googlePlaceJSON.getJSONObject("opening_hours").has("open_now")) {
+            if (!googlePlaceJSON.getJSONObject("opening_hours").getString("open_now").isEmpty()) {
                 openNow = googlePlaceJSON.getJSONObject("opening_hours").getString("open_now");
                 googlePlacesMap.put("open_now",openNow);
             }
@@ -83,7 +86,7 @@ public class PlacesSearchDataParser
         }
 
         try {
-            if (!googlePlaceJSON.getJSONArray("photos").getJSONObject(0).isNull("photo_reference")) {
+            if (!googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("photo_reference").isEmpty()) {
                 photoReference = googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
                 googlePlacesMap.put("photo_reference", photoReference);
             }
@@ -94,7 +97,7 @@ public class PlacesSearchDataParser
         }
 
         try {
-            if (!googlePlaceJSON.getJSONArray("photos").getJSONObject(0).isNull("width")) {
+            if (!googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("width").isEmpty()) {
                 photoWidth = googlePlaceJSON.getJSONArray("photos").getJSONObject(0).getString("width");
                 googlePlacesMap.put("photo_width", photoWidth);
             }
@@ -103,6 +106,18 @@ public class PlacesSearchDataParser
             googlePlacesMap.put("photo_width", photoWidth);
             e.printStackTrace();
         }
+
+        Log.i(TAG, "getPlace: returning values for this place : ");
+        Log.i(TAG, "getPlace: place_name : " + googlePlacesMap.get("place_name"));
+        Log.i(TAG, "getPlace: vicinity : " + googlePlacesMap.get("vicinity"));
+        Log.i(TAG, "getPlace: lat : " + googlePlacesMap.get("lat"));
+        Log.i(TAG, "getPlace: lng : " + googlePlacesMap.get("lng"));
+        Log.i(TAG, "getPlace: place_id : " + googlePlacesMap.get("place_id"));
+        Log.i(TAG, "getPlace: reference : " + googlePlacesMap.get("reference"));
+        Log.i(TAG, "getPlace: rating : " + googlePlacesMap.get("rating"));
+        Log.i(TAG, "getPlace: open_now : " + googlePlacesMap.get("open_now"));
+        Log.i(TAG, "getPlace: photo_reference : " + googlePlacesMap.get("photo_reference"));
+        Log.i(TAG, "getPlace: photo_width : " + googlePlacesMap.get("photo_width"));
 
         return googlePlacesMap;
     }

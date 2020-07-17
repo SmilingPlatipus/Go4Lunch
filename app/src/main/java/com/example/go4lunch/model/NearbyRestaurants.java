@@ -26,12 +26,12 @@ public class NearbyRestaurants extends AsyncTask<Object, Void, String>
     public NearbyRestaurantsResponse callback = null;
 
     public NearbyRestaurants(NearbyRestaurantsResponse callback) {
-        Log.i(TAG, "task " + pageCount + " created");
         this.callback = callback;
     }
 
     @Override
     protected String doInBackground(Object... objects) {
+        Log.i(TAG, "NearbyRestaurants treating page number : " + pageCount);
         apiKey = (String) objects[0];
         nearbyPlacesRequest = (String) objects[1];
 
@@ -49,7 +49,6 @@ public class NearbyRestaurants extends AsyncTask<Object, Void, String>
 
     @Override
     protected void onPostExecute(String s) {
-        Log.i(TAG, "onPostExecute: task " + pageCount + " finishing...");
         PlacesSearchDataParser parser = new PlacesSearchDataParser();
         nearbyRestaurantList.addAll(parser.parse(s));
         callback.onNearbyRestaurantsCompleted(parser.nextPageToken);
