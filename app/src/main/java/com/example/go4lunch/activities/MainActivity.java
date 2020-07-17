@@ -19,7 +19,6 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -38,13 +37,13 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.go4lunch.BuildConfig;
 import com.example.go4lunch.R;
 import com.example.go4lunch.fragments.map.MapStateManager;
-import com.example.go4lunch.model.GetCustomMarkerIcon;
-import com.example.go4lunch.model.NearbyRestaurants;
-import com.example.go4lunch.model.PlaceDetails;
-import com.example.go4lunch.model.Restaurant;
-import com.example.go4lunch.model.Workmate;
+import com.example.go4lunch.utils.GetCustomMarkerIcon;
+import com.example.go4lunch.models.Restaurant;
+import com.example.go4lunch.models.Workmate;
+import com.example.go4lunch.utils.RestaurantMarkersHandler;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.ApiException;
@@ -57,10 +56,7 @@ import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -88,26 +84,23 @@ import com.mancj.materialsearchbar.MaterialSearchBar;
 import com.mancj.materialsearchbar.adapter.SuggestionsAdapter;
 
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener,
-                                                               NearbyRestaurants.NearbyRestaurantsResponse, PlaceDetails.PlaceDetailsResponse
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener
 {
     public static final String TAG = "MainActivity";
     public static final float DEFAULT_ZOOM = 15f;
-    private static final int PROXIMITY_RADIUS = 10000;
+    public static final int PROXIMITY_RADIUS = 10000;
     private static final double SOUTHWEST_LAT_BOUND = 0.055;
     private static final double NORTHEAST_LNG_BOUND = 0.075;
     private static final int ACCESS_FINE_LOCATION_CODE = 10;
     private static final int ACCESS_COARSE_LOCATION_CODE = 11;
     private static final int REQUEST_CHECK_SETTINGS = 13;
+    private static final String API_KEY = BuildConfig.API_KEY;
 
     public static LocationManager locationManager;
 
@@ -121,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static FusedLocationProviderClient mFusedLocationProviderClient;
     public static Location lastKnownLocation;
     public static Bitmap customRestaurantBitmap = null;
-    int indexOfRestaurantToGetDetails = 0;
+    public static int indexOfRestaurantToGetDetails;
 
     public static List<HashMap<String, String>> nearbyRestaurantList = new ArrayList();
     public static List<Restaurant> nearbyRestaurant = new ArrayList<>();
@@ -264,7 +257,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
                 // Searching for restaurants in the current area, with Google Places requests
-                getRestaurantsLocations();
+                RestaurantMarkersHandler restaurantMarkersHandler = new RestaurantMarkersHandler(this);
+                restaurantMarkersHandler.getRestaurantsLocations();
             }
         }
 
@@ -282,7 +276,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             this.recreate();
         }
     }
-
 
     private boolean checkPermissions() {
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
@@ -375,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void initGooglePlaces() {
         // Initialize the Google Places SDK
-        Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
+        Places.initialize(getApplicationContext(), API_KEY);
         // Create a new Places client instance
         placesClient = Places.createClient(this);
     }
@@ -661,202 +654,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
 
-    }
-
-    private void getRestaurantsLocations() {
-        if (!fakeConfig) {
-            String url = getPlacesSearchUrl(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), "restaurant");
-            Object dataTransfer[] = new Object[2];
-            dataTransfer[0] = getApplicationContext().getString(R.string.google_api_key);
-            dataTransfer[1] = url;
-
-            NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
-            NearbyRestaurants.pageCount = 1;
-            Log.i(TAG, "getRestaurantsLocations: task : " + NearbyRestaurants.pageCount + " executing...");
-            nearbyRestaurants.execute(dataTransfer);
-        }
-        else{
-            Object dataTransfer[] = new Object[2];
-            dataTransfer[0] = getApplicationContext().getString(R.string.google_api_key);
-            dataTransfer[1] = loadJSONFromAsset(getApplicationContext(),"places_search_results_cahors_page_1");
-
-            NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
-            NearbyRestaurants.pageCount = 1;
-            Log.i(TAG, "getRestaurantsLocations: task : " + NearbyRestaurants.pageCount + " executing...");
-            nearbyRestaurants.execute(dataTransfer);
-        }
-    }
-
-    public static void changeBitmapTintTo(Bitmap myBitmap, int color){
-        int [] allpixels = new int [myBitmap.getHeight() * myBitmap.getWidth()];
-
-        myBitmap.getPixels(allpixels, 0, myBitmap.getWidth(), 0, 0, myBitmap.getWidth(), myBitmap.getHeight());
-
-        for(int i = 0; i < allpixels.length; i++)
-        {
-            if(allpixels[i] == Color.BLACK)
-            {
-                allpixels[i] = color;
-            }
-        }
-        myBitmap.setPixels(allpixels,0,myBitmap.getWidth(),0, 0, myBitmap.getWidth(),myBitmap.getHeight());
-    }
-
-    public static void addCustomRestaurantMarker(HashMap<String, String> googlePlace, Bitmap mIcon){
-
-        MarkerOptions markerOptions = new MarkerOptions();
-
-        String placeName = googlePlace.get("place_name");
-        String vicinity = googlePlace.get("vicinity");
-        double lat = Double.parseDouble(googlePlace.get("lat"));
-        double lng = Double.parseDouble(googlePlace.get("lng"));
-
-        LatLng latLng = new LatLng(lat,lng);
-        markerOptions.position(latLng);
-        markerOptions.title(placeName);
-        markerOptions.snippet(vicinity);
-
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(mIcon,100,150,false);
-        changeBitmapTintTo(scaledBitmap, Color.RED);
-        mIcon = scaledBitmap;
-        BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(mIcon);
-
-        markerOptions.icon(icon);
-        mMap.addMarker(markerOptions);
-    }
-
-    private String getPlacesSearchUrl(double latitude, double longitude, String nearbyPlace){
-        StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-        googlePlaceUrl.append("location=" + latitude + "," + longitude);
-        googlePlaceUrl.append("&radius=" + PROXIMITY_RADIUS);
-        googlePlaceUrl.append("&type=" + nearbyPlace);
-        googlePlaceUrl.append("&sensor=true");
-        googlePlaceUrl.append("&key=" + getString(R.string.google_api_key));
-
-        return googlePlaceUrl.toString();
-    }
-
-    public String getPlacesSearchNextPageUrl(String nextPageToken){
-        StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-        googlePlaceUrl.append("&key=" + getString(R.string.google_api_key));
-        googlePlaceUrl.append("&pagetoken=" + nextPageToken);
-
-        return googlePlaceUrl.toString();
-    }
-
-    private String makePlacesDetailsRequest(String placeId){
-        StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/details/json?");
-        googlePlaceUrl.append("&key=" + getApplicationContext().getString(R.string.google_api_key));
-        googlePlaceUrl.append("&place_id=" + placeId);
-
-        return googlePlaceUrl.toString();
-    }
-
-    private String makePlacesPhotoRequest(String photoReference, String maxWidth){
-        if (photoReference.compareTo("null") == 0 || maxWidth.compareTo("0") == 0)
-            return "null";
-        else {
-            StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo?");
-            googlePlaceUrl.append("maxwidth=" + maxWidth);
-            googlePlaceUrl.append("&photoreference=" + photoReference);
-            googlePlaceUrl.append("&key=" + getApplicationContext().getString(R.string.google_api_key));
-
-            return googlePlaceUrl.toString();
-        }
-    }
-
-    // Callback method from NearbyPlacesSearch Asynctask
-    @Override
-    public void onNearbyRestaurantsCompleted(String nextPageToken) {
-        // Making Places Details request to get more informations about all restaurants treated in previous thread
-
-        Iterator iterator = nearbyRestaurantList.iterator();
-        HashMap<String, String> currentRestaurant = new HashMap<>();
-        do{
-            currentRestaurant = (HashMap<String, String>) iterator.next();
-
-        }while(currentRestaurant != nearbyRestaurantList.get(indexOfRestaurantToGetDetails));
-
-         do{
-            Log.i(TAG, "onNearbyRestaurantsCompleted: launching PlacesDetails task number : " + indexOfRestaurantToGetDetails);
-            Object transferObject[] = new Object[3];
-            transferObject[0] = (String) makePlacesDetailsRequest(currentRestaurant.get("place_id"));
-            transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"), currentRestaurant.get("photo_width"));
-            transferObject[2] = (int) indexOfRestaurantToGetDetails;
-            PlaceDetails placesDetails = new PlaceDetails(this);
-            placesDetails.execute(transferObject);
-            indexOfRestaurantToGetDetails++;
-            currentRestaurant = (HashMap<String, String>) iterator.next();
-        }while (iterator.hasNext());
-
-         // Treating the last restaurant of the page, then treating another page
-        Log.i(TAG, "onNearbyRestaurantsCompleted: launching PlacesDetails task number : " + indexOfRestaurantToGetDetails);
-        Object transferObject[] = new Object[3];
-        transferObject[0] = (String) makePlacesDetailsRequest(currentRestaurant.get("place_id"));
-        transferObject[1] = (String) makePlacesPhotoRequest(currentRestaurant.get("photo_reference"), currentRestaurant.get("photo_width"));
-        transferObject[2] = (int) indexOfRestaurantToGetDetails;
-        PlaceDetails placesDetails = new PlaceDetails(this);
-        placesDetails.execute(transferObject);
-        indexOfRestaurantToGetDetails++;
-
-        Log.i(TAG, "onNearbyRestaurantsCompleted : page number : " + NearbyRestaurants.pageCount + " ending...");
-
-        // Then making custom Places Search request with nextpagetoken in another thread
-        if (nextPageToken != null) {
-            if (!fakeConfig) {
-                Object dataTransfer[] = new Object[2];
-                dataTransfer[0] = getApplicationContext().getString(R.string.google_api_key);
-                dataTransfer[1] = getPlacesSearchNextPageUrl(nextPageToken);
-
-                NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
-                Log.i(TAG, "onNearbyRestaurantsCompleted : page number : " + NearbyRestaurants.pageCount + " executing...");
-                nearbyRestaurants.execute(dataTransfer);
-            }
-            else {
-                Object dataTransfer[] = new Object[2];
-                dataTransfer[0] = getApplicationContext().getString(R.string.google_api_key);
-                dataTransfer[1] = loadJSONFromAsset(getApplicationContext(),"places_search_results_cahors_page_" + tokenNumber);
-
-                NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
-                Log.i(TAG, "onNearbyRestaurantsCompleted : page number : " + NearbyRestaurants.pageCount + " executing...");
-                nearbyRestaurants.execute(dataTransfer);
-                tokenNumber++;
-            }
-        }
-    }
-
-    // This is for fake configuration purpose
-    public String loadJSONFromAsset(Context context, String file_name) {
-        String json = null;
-        try {
-            InputStream is = context.getAssets().open(file_name + ".json");
-
-            int size = is.available();
-
-            byte[] buffer = new byte[size];
-
-            is.read(buffer);
-
-            is.close();
-
-            json = new String(buffer, "UTF-8");
-
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        return json;
-
-    }
-
-    @Override
-    public void onPlaceDetailsCompleted(HashMap<String, String> googlePlace, Bitmap mIcon) {
-        Log.i(TAG, "onPlaceDetailsCompleted: adding restaurant : " + googlePlace.get("place_name"));
-        // Adding markers, one by one to the map
-        addCustomRestaurantMarker(googlePlace,mIcon);
-        // Finally creating one by one our restaurants
-        nearbyRestaurant.add(new Restaurant(googlePlace, lastKnownLocation));
     }
 
     @Override

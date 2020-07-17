@@ -1,4 +1,4 @@
-package com.example.go4lunch.model;
+package com.example.go4lunch.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

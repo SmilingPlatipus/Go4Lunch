@@ -1,7 +1,8 @@
-package com.example.go4lunch.model;
+package com.example.go4lunch.utils;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
 import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
 import static com.example.go4lunch.activities.MainActivity.fakeConfig;
 
@@ -49,7 +50,7 @@ public class NearbyRestaurants extends AsyncTask<Object, Void, String>
 
     @Override
     protected void onPostExecute(String s) {
-        PlacesSearchDataParser parser = new PlacesSearchDataParser();
+        NearbyRestaurantsDataParser parser = new NearbyRestaurantsDataParser();
         nearbyRestaurantList.addAll(parser.parse(s));
         callback.onNearbyRestaurantsCompleted(parser.nextPageToken);
     }

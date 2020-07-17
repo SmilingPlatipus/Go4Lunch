@@ -1,4 +1,4 @@
-package com.example.go4lunch.model;
+package com.example.go4lunch.models;
 
 public class Workmate
 {

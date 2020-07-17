@@ -16,6 +16,8 @@ android {
 
         // Enabling multidex support.
         multiDexEnabled true
+
+        buildConfigField("String", "API_KEY", API_KEY)
     }
 
     buildTypes {

@@ -1,4 +1,4 @@
-package com.example.go4lunch.model;
+package com.example.go4lunch.utils;
 
 import android.util.Log;
 
@@ -16,7 +16,7 @@ import java.util.List;
 *                                          This class purpose is to parse a Google Places Search page containing results as a JSON file                                                                                    *
 *                                                                                                                                                                                                                          *
 ****************************************************************************************************************************************************************************************************************************/
-public class PlacesSearchDataParser
+public class NearbyRestaurantsDataParser
 {
     private static final String TAG = "PlacesSearchDataParser";
     String nextPageToken = null;

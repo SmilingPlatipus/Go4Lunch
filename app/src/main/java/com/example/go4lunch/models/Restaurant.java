@@ -1,8 +1,7 @@
-package com.example.go4lunch.model;
+package com.example.go4lunch.models;
 
 import android.location.Location;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.annotation.Nullable;

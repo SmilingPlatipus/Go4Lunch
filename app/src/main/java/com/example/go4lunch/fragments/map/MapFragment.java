@@ -26,8 +26,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
 import com.example.go4lunch.activities.DetailRestaurantActivity;
-import com.example.go4lunch.model.Restaurant;
-import com.example.go4lunch.model.Workmate;
+import com.example.go4lunch.models.Restaurant;
+import com.example.go4lunch.models.Workmate;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -43,7 +43,7 @@ import com.google.firebase.firestore.Query;
 
 import java.util.HashMap;
 
-import static com.example.go4lunch.activities.MainActivity.addCustomRestaurantMarker;
+import static com.example.go4lunch.utils.RestaurantMarkersHandler.addCustomRestaurantMarker;
 import static com.example.go4lunch.activities.MainActivity.customRestaurantBitmap;
 import static com.example.go4lunch.activities.MainActivity.mMap;
 import static com.example.go4lunch.activities.MainActivity.lastKnownLocation;
@@ -84,7 +84,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         savedMapState = new MapStateManager(getContext());
         savedMapState.clearMapState();
         savedMapState.saveMapState(mMap);
-        Toast.makeText(getContext(), "Map State has been saved", Toast.LENGTH_SHORT).show();
     }
 
     @Override
