@@ -44,6 +44,7 @@ import com.example.go4lunch.utils.GetCustomMarkerIcon;
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Workmate;
 import com.example.go4lunch.utils.RestaurantMarkersHandler;
+import com.example.go4lunch.utils.WorkmatesChoiceUpdate;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.ApiException;
@@ -120,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static List<Restaurant> nearbyRestaurant = new ArrayList<>();
 
     // This is a fake configuration for local testing purposes
-    public static boolean fakeConfig = false;
+    public static boolean fakeConfig = true;
     public static int tokenNumber = 2;
 
     // Google Places autocomplete purpose
@@ -256,9 +257,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 applyProfileDataOnHeader();
 
 
+                // Instancing new utilitary class to update workmates collection
+                WorkmatesChoiceUpdate workmatesChoiceUpdate = new WorkmatesChoiceUpdate();
+
                 // Searching for restaurants in the current area, with Google Places requests
-                RestaurantMarkersHandler restaurantMarkersHandler = new RestaurantMarkersHandler(this);
+                RestaurantMarkersHandler restaurantMarkersHandler = new RestaurantMarkersHandler(this, workmatesChoiceUpdate);
                 restaurantMarkersHandler.getRestaurantsLocations();
+
             }
         }
 

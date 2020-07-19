@@ -25,6 +25,8 @@
     <string name="logged_in_failed_unknown_error">An unknown error occured</string>
     <string name="user_current_location_not_found">Unable to find current location</string>
     <string name="log_out">You have been logged out</string>
+    <string name="twitter_consumer_key" translatable="false">EDVTWGv3tm9LvVy8hZB1TMj2y</string>
+    <string name="twitter_consumer_secret" translatable="false">pyAJ8Ngym7LUukVGiokpv7xkzXe3poyPtbHZBD6Pz4dXJXCwpU</string>
 
     <!-- Bottom navigationview strings -->
     <string name="title_map">Map</string>
@@ -45,6 +47,7 @@
     <string name="restaurant_status_opened">Opened</string>
     <string name="restaurant_status_closed">Closed</string>
     <string name="restaurant_proximity_metric">meters</string>
+    <string name="workmate_choice">is eating at :</string>
 
     <!-- Google Map purposes -->
     <string name="custom_marker_url" translatable="false">https://cdn.onlinewebfonts.com/svg/img_57428.png</string>

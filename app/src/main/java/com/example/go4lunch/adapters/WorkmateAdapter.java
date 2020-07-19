@@ -1,5 +1,6 @@
 package com.example.go4lunch.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,10 @@ import com.example.go4lunch.models.Workmate;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
+import java.util.HashMap;
+
+import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
+
 public class WorkmateAdapter extends FirestoreRecyclerAdapter<Workmate, WorkmateAdapter.WorkmateHolder>
 {
     /**
@@ -24,15 +29,31 @@ public class WorkmateAdapter extends FirestoreRecyclerAdapter<Workmate, Workmate
      *
      * @param options
      */
-    public WorkmateAdapter(@NonNull FirestoreRecyclerOptions<Workmate> options) {
+    Context context;
+    public WorkmateAdapter(Context context, @NonNull FirestoreRecyclerOptions<Workmate> options) {
         super(options);
+        this.context = context;
     }
 
     @Override
     protected void onBindViewHolder(@NonNull WorkmateHolder holder, int position, @NonNull Workmate model) {
-        String workmateString = model.getName() + " " + holder.workmateImage.getContext().getString(R.string.workmate_not_chosen);
-        holder.workmateName.setText(workmateString);
-        holder.workmateName.setTextColor(holder.workmateName.getHintTextColors());
+        StringBuilder workmateString = new StringBuilder(model.getName() + " ");
+        if (model.getChoice().compareTo("null") != 0) {
+            workmateString.append(context.getString(R.string.workmate_choice));
+            workmateString.append(" (");
+            for (HashMap<String, String> currentRestaurant : nearbyRestaurantList) {
+                if (currentRestaurant.get("place_name") != null)
+                    if (model.getChoice().compareTo(currentRestaurant.get("place_id")) == 0)
+                        workmateString.append(currentRestaurant.get("place_name"));
+            }
+            workmateString.append(")");
+            holder.workmateName.setTextColor(holder.workmateName.getHighlightColor());
+        }
+        else{
+            workmateString.append(context.getString(R.string.workmate_not_chosen));
+            holder.workmateName.setTextColor(holder.workmateName.getHintTextColors());
+        }
+        holder.workmateName.setText(workmateString.toString());
 
         Glide.with(holder.workmateImage.getContext())
                 .load(model.getImage())

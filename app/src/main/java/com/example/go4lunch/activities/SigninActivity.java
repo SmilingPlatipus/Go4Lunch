@@ -57,6 +57,9 @@ public class SigninActivity extends AppCompatActivity
                         .setAvailableProviders(
                                 Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build(),
                                               new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                              //new AuthUI.IdpConfig.Builder(AuthUI.TWITTER_PROVIDER).build(),
+                                              //new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build()))
+
                         .setIsSmartLockEnabled(false, true)
                         .setLogo(R.drawable.ic_baseline_group_24)
                         .build(),
@@ -77,21 +80,21 @@ public class SigninActivity extends AppCompatActivity
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) { // SUCCESS
-                Toast.makeText(getApplicationContext(), getString(R.string.logged_in_success),Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.logged_in_success),Toast.LENGTH_LONG).show();
                 Log.d(TAG, "handleResponseAfterSignIn: logged in successfully");
                 finish();
             } else { // ERRORS
                 if (response == null) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.logged_in_failed),Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getString(R.string.logged_in_failed),Toast.LENGTH_LONG).show();
                     Log.d(TAG, "handleResponseAfterSignIn: logged in failed");
                     signIn();
 
                 } else if (response.getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.logged_in_failed_no_network),Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getString(R.string.logged_in_failed_no_network),Toast.LENGTH_LONG).show();
                     Log.d(TAG, "handleResponseAfterSignIn: no network available");
                     signIn();
                 } else if (response.getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.logged_in_failed_unknown_error),Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getString(R.string.logged_in_failed_unknown_error),Toast.LENGTH_LONG).show();
                     Log.d(TAG, "handleResponseAfterSignIn: an unknown error has occured during signin in");
                     signIn();
                 }

@@ -63,6 +63,7 @@ public class PlaceDetails extends AsyncTask<Object, Void, String>
             buffer.put("photo_url",placePhotoRequest);
             Log.i(TAG, "onPostExecute: PlacesDetailsDataParser value for photo_url is : " + buffer.get("photo_url"));
             nearbyRestaurantList.set(currentIndex,buffer);
+
             callback.onPlaceDetailsCompleted(buffer,customRestaurantBitmap);
         } catch (JSONException e) {
             e.printStackTrace();

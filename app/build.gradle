@@ -59,6 +59,7 @@ dependencies {
     // Signin Providers dependencies
     implementation 'com.facebook.android:facebook-android-sdk:5.15.3'
     implementation 'com.google.android.gms:play-services-auth:18.0.0'
+    implementation 'com.twitter.sdk.android:twitter-core:3.3.0'
     // Firestore dependencies
     implementation 'com.google.firebase:firebase-firestore:21.4.3'
     implementation 'com.firebaseui:firebase-ui-firestore:6.2.1'

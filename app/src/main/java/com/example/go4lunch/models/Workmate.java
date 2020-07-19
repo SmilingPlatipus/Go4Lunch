@@ -4,11 +4,13 @@ public class Workmate
 {
     private String name;
     private String image;
+    private String choice;
 
     public Workmate(){};
-    public Workmate(String name, String image) {
+    public Workmate(String name, String image, String choice) {
         this.name = name;
         this.image = image;
+        this.choice = choice;
     }
 
     public String getName() {
@@ -27,4 +29,11 @@ public class Workmate
         this.image = image;
     }
 
+    public String getChoice() {
+        return choice;
+    }
+
+    public void setChoice(String choice) {
+        this.choice = choice;
+    }
 }

@@ -19,7 +19,7 @@ import java.util.List;
 public class NearbyRestaurantsDataParser
 {
     private static final String TAG = "PlacesSearchDataParser";
-    String nextPageToken = null;
+    public String nextPageToken = null;
 
     // Parsing each place details, fetching all informations needed
 

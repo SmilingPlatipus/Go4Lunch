@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 
+
 import com.example.go4lunch.models.Restaurant;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -29,10 +30,14 @@ import java.util.Iterator;
 public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaurantsResponse, PlaceDetails.PlaceDetailsResponse
 {
     private static final String TAG = "RestaurantMarkerHandler";
+    private boolean isLastPageCurrentlyParsed = false;
     Context context;
 
-    public RestaurantMarkersHandler(Context context) {
+    private RestaurantMarkersHandlerCallback restaurantMarkersHandlerCallback = null;
+
+    public RestaurantMarkersHandler(Context context, RestaurantMarkersHandlerCallback callback) {
         this.context = context;
+        this.restaurantMarkersHandlerCallback = callback;
     }
 
     public void getRestaurantsLocations() {
@@ -141,6 +146,7 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
     @Override
     public void onNearbyRestaurantsCompleted(String nextPageToken) {
         // Making Places Details request to get more informations about all restaurants treated in previous thread
+        // First we're getting back the currentRestaurant that we were previously working on
 
         Iterator iterator = nearbyRestaurantList.iterator();
         HashMap<String, String> currentRestaurant = new HashMap<>();
@@ -195,6 +201,8 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
                 tokenNumber++;
             }
         }
+        else
+            isLastPageCurrentlyParsed = true;
     }
 
     // This is for fake configuration purpose
@@ -229,5 +237,14 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
         addCustomRestaurantMarker(googlePlace,mIcon);
         // Finally creating one by one our restaurants
         nearbyRestaurant.add(new Restaurant(googlePlace, lastKnownLocation));
+
+        // On last restaurant retrieved, we init random workmate choices
+        if (nearbyRestaurant.size() == nearbyRestaurantList.size() && isLastPageCurrentlyParsed)
+            restaurantMarkersHandlerCallback.initRandomWorkmateChoice();
+    }
+
+    public interface RestaurantMarkersHandlerCallback
+    {
+        void initRandomWorkmateChoice();
     }
 }

@@ -27,7 +27,7 @@ public class WorkmatesFragment extends Fragment
 
 
         // Creating adapter for RecyclerView
-        adapter = new WorkmateAdapter(optionsForWorkmatesRecyclerView);
+        adapter = new WorkmateAdapter(root.getContext(), optionsForWorkmatesRecyclerView);
 
         // Initializing Recyclerview
         mWorkmates = (RecyclerView) root.findViewById(R.id.workmates_recyclerview);

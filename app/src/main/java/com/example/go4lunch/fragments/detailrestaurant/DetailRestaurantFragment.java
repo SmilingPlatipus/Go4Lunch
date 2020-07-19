@@ -27,7 +27,7 @@ public class DetailRestaurantFragment extends Fragment
 
 
         // Creating adapter for RecyclerView
-        adapter = new WorkmateAdapter(optionsForWorkmatesEatingInThisRestaurant);
+        adapter = new WorkmateAdapter(root.getContext(), optionsForWorkmatesEatingInThisRestaurant);
 
         // Initializing Recyclerview
         workmatesEatingInThisRestaurant = (RecyclerView) root.findViewById(R.id.workmates_recyclerview);
