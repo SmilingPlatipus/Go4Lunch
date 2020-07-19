@@ -55,10 +55,16 @@ public class WorkmatesChoiceUpdate implements RestaurantMarkersHandler.Restauran
             DocumentReference ref = firebaseFirestore.collection("workmates").document((String) list.get(k));
             // Get a random restaurant in our list
             Restaurant randomRestaurant = new Restaurant();
-            int randomChoice = (int)(Math.random()*(nearbyRestaurant.size()+1));
-            randomRestaurant = nearbyRestaurant.get(randomChoice);
-            batch.update(ref, "choice",randomRestaurant.getPlaceId());
-            nearbyRestaurant.get(randomChoice).setWorkmatesCount(nearbyRestaurant.get(randomChoice).getWorkmatesCount()+1);
+            if (k != list.size() - 1) {
+                int randomChoice = (int) (Math.random() * (nearbyRestaurant.size() + 1));
+                randomRestaurant = nearbyRestaurant.get(randomChoice);
+                batch.update(ref, "choice", randomRestaurant.getPlaceId());
+                nearbyRestaurant.get(randomChoice).setWorkmatesCount(nearbyRestaurant.get(randomChoice).getWorkmatesCount() + 1);
+            }
+            else {
+                // Init last workmate with "null" value, for testing purpose
+                batch.update(ref,"choice","null");
+            }
         }
 
         // Commit the batch

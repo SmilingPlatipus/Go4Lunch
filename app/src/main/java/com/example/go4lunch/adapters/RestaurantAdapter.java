@@ -58,7 +58,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
         int proximity = (int) restaurantList.get(position).getDistanceFromUser();
         holder.proximity.setText(String.valueOf(proximity) + " m");
-        holder.workmateNumber.setText(String.valueOf(restaurantList.get(position).getWorkmatesCount()));
+        holder.workmateNumber.setText("("+String.valueOf(restaurantList.get(position).getWorkmatesCount())+")");
 
         if (restaurantList.get(position).getRating() <= 2){
             holder.star1.setVisibility(View.VISIBLE);
