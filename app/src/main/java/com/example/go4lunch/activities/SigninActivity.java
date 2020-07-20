@@ -48,7 +48,6 @@ public class SigninActivity extends AppCompatActivity
     }
 
     private void signIn(){
-        // Todo : signin with Twitter and email/password
         Log.d(TAG, "signIn: signin in with Google and FB");
         startActivityForResult(
                 AuthUI.getInstance()
@@ -56,10 +55,9 @@ public class SigninActivity extends AppCompatActivity
                         .setTheme(R.style.AppTheme)
                         .setAvailableProviders(
                                 Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build(),
-                                              new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                                              //new AuthUI.IdpConfig.Builder(AuthUI.TWITTER_PROVIDER).build(),
-                                              //new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build()))
-
+                                              new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build(),
+                                              new AuthUI.IdpConfig.Builder(AuthUI.TWITTER_PROVIDER).build(),
+                                              new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build()))
                         .setIsSmartLockEnabled(false, true)
                         .setLogo(R.drawable.ic_baseline_group_24)
                         .build(),

@@ -263,7 +263,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Searching for restaurants in the current area, with Google Places requests
                 RestaurantMarkersHandler restaurantMarkersHandler = new RestaurantMarkersHandler(this, workmatesChoiceUpdate);
                 restaurantMarkersHandler.getRestaurantsLocations();
-
             }
         }
 
@@ -285,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean checkPermissions() {
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getApplication().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this);
                 return true;
@@ -305,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return false;
         }
 
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getApplication().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this);
                 return true;
@@ -373,13 +372,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void initGooglePlaces() {
         // Initialize the Google Places SDK
-        Places.initialize(getApplicationContext(), API_KEY);
+        Places.initialize(this, API_KEY);
         // Create a new Places client instance
         placesClient = Places.createClient(this);
     }
 
     public void showAutocompleteSearchBar(View view) {
-
         // Show materialSearchBar, hide regular App Bar
         materialSearchBar.setVisibility(View.VISIBLE);
         mToolbar.setVisibility(View.GONE);
@@ -553,7 +551,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void getProfileData() {
-
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             for (UserInfo profile : user.getProviderData()) {
@@ -570,7 +567,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 photoUrl = profile.getPhotoUrl();
             }
         }
-
     }
 
     public void getIdentity(String userIdentity) {
@@ -591,7 +587,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void applyProfileDataOnHeader() {
-
         // Apply profile informations into drawer layout
         Glide.with(this)
                 .load(photoUrl)
@@ -627,7 +622,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .addOnCompleteListener(new OnCompleteListener<Void>()
                 {
                     public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.log_out), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplication().getApplicationContext(), getString(R.string.log_out), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
