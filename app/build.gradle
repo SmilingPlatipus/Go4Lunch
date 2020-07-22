@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
@@ -17,7 +18,7 @@ android {
         // Enabling multidex support.
         multiDexEnabled true
 
-        buildConfigField("String", "API_KEY", API_KEY)
+        resValue "string", "google_maps_key", (project.findProperty("API_KEY") ?: "")
     }
 
     buildTypes {

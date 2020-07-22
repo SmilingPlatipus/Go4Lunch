@@ -15,17 +15,20 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.go4lunch.activities.MainActivity.customRestaurantBitmap;
 import static com.example.go4lunch.activities.MainActivity.firebaseFirestore;
 import static com.example.go4lunch.activities.MainActivity.nearbyRestaurant;
+import static com.example.go4lunch.activities.MainActivity.userDocumentID;
 import static com.example.go4lunch.activities.MainActivity.workmatesReference;
+import static com.example.go4lunch.utils.RestaurantMarkersHandler.DEFAULT_MARKER_COLOR;
+import static com.example.go4lunch.utils.RestaurantMarkersHandler.SELECTED_MARKER_COLOR;
+import static com.example.go4lunch.utils.RestaurantMarkersHandler.addCustomRestaurantMarker;
 
 public class WorkmatesChoiceUpdate implements RestaurantMarkersHandler.RestaurantMarkersHandlerCallback
 {
-
     private static final String TAG = "WorkmatesChoiceUpdate";
 
     void getWorkmatesDataThenUpdate() {
-
         workmatesReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -35,7 +38,7 @@ public class WorkmatesChoiceUpdate implements RestaurantMarkersHandler.Restauran
                         list.add(document.getId());
                     }
                     Log.d(TAG, list.toString());
-                    updateWorkmatesData(list); // *** new ***
+                    updateWorkmatesData(list);
                 } else {
                     Log.d(TAG, "Error getting documents: ", task.getException());
                 }
@@ -50,20 +53,21 @@ public class WorkmatesChoiceUpdate implements RestaurantMarkersHandler.Restauran
 
         // Iterate through the list
         for (int k = 0; k < list.size(); k++) {
-
             // Update each list item
             DocumentReference ref = firebaseFirestore.collection("workmates").document((String) list.get(k));
-            // Get a random restaurant in our list
-            Restaurant randomRestaurant = new Restaurant();
-            if (k != list.size() - 1) {
-                int randomChoice = (int) (Math.random() * (nearbyRestaurant.size() + 1));
-                randomRestaurant = nearbyRestaurant.get(randomChoice);
-                batch.update(ref, "choice", randomRestaurant.getPlaceId());
-                nearbyRestaurant.get(randomChoice).setWorkmatesCount(nearbyRestaurant.get(randomChoice).getWorkmatesCount() + 1);
-            }
-            else {
-                // Init last workmate with "null" value, for testing purpose
-                batch.update(ref,"choice","null");
+
+            // If the current document is not the user document, else we do nothing
+            if (userDocumentID == null || userDocumentID.compareTo((String) list.get(k)) != 0) {
+
+                int finalK = k;
+
+                    // Get a random restaurant in our list
+                    Restaurant randomRestaurant = new Restaurant();
+                    int randomChoice = (int) (Math.random() * nearbyRestaurant.size() );
+                    randomRestaurant = nearbyRestaurant.get(randomChoice);
+                    batch.update(ref, "choice", randomRestaurant.getPlaceId());
+                    nearbyRestaurant.get(randomChoice).setWorkmatesCount(nearbyRestaurant.get(randomChoice).getWorkmatesCount() + 1);
+                    addCustomRestaurantMarker(randomRestaurant.getInstanceAsHashMap(), customRestaurantBitmap, SELECTED_MARKER_COLOR);
             }
         }
 

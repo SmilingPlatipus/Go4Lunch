@@ -3,8 +3,10 @@ package com.example.go4lunch.models;
 import android.location.Location;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.annotation.Nullable;
+import static com.example.go4lunch.activities.MainActivity.nearbyRestaurant;
 
 public class Restaurant
 {
@@ -65,7 +67,18 @@ public class Restaurant
         restaurant.put("lng",String.valueOf(this.longitude));
 
         return restaurant;
-}
+    }
+
+    public static Restaurant searchById(String placeId){
+        Iterator<Restaurant> iterator = nearbyRestaurant.iterator();
+        do{
+            Restaurant currentRestaurant = iterator.next();
+            if (currentRestaurant.getPlaceId().compareTo(placeId) == 0)
+                return currentRestaurant;
+        }while (iterator.hasNext());
+
+        return null;
+    }
 
     public String getId() {
         return id;

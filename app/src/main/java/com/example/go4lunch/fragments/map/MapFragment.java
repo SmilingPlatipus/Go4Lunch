@@ -42,6 +42,8 @@ import com.google.firebase.firestore.Query;
 
 import java.util.HashMap;
 
+import static com.example.go4lunch.utils.RestaurantMarkersHandler.DEFAULT_MARKER_COLOR;
+import static com.example.go4lunch.utils.RestaurantMarkersHandler.SELECTED_MARKER_COLOR;
 import static com.example.go4lunch.utils.RestaurantMarkersHandler.addCustomRestaurantMarker;
 import static com.example.go4lunch.activities.MainActivity.customRestaurantBitmap;
 import static com.example.go4lunch.activities.MainActivity.mMap;
@@ -109,8 +111,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
             // Activating the "MyLocation" button and replacing it at the bottom of the map
 
-            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mMap.setMyLocationEnabled(true);
             }
 
@@ -145,7 +148,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
             for (Restaurant currentRestaurant : nearbyRestaurant){
                 HashMap<String, String> restaurant = currentRestaurant.getInstanceAsHashMap();
-                addCustomRestaurantMarker(restaurant, customRestaurantBitmap);
+                if (currentRestaurant.getWorkmatesCount() > 0)
+                    addCustomRestaurantMarker(restaurant, customRestaurantBitmap, SELECTED_MARKER_COLOR);
+                else
+                    addCustomRestaurantMarker(restaurant, customRestaurantBitmap, DEFAULT_MARKER_COLOR);
             }
         }
     }

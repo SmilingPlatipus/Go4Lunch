@@ -37,13 +37,13 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.go4lunch.BuildConfig;
 import com.example.go4lunch.R;
 import com.example.go4lunch.fragments.map.MapStateManager;
 import com.example.go4lunch.utils.GetCustomMarkerIcon;
 import com.example.go4lunch.models.Restaurant;
 import com.example.go4lunch.models.Workmate;
 import com.example.go4lunch.utils.RestaurantMarkersHandler;
+import com.example.go4lunch.utils.ManageUserAccountOnFirestore;
 import com.example.go4lunch.utils.WorkmatesChoiceUpdate;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -90,6 +90,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static androidx.core.content.ContextCompat.startActivity;
+import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
+
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener
 {
@@ -98,10 +101,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final int PROXIMITY_RADIUS = 10000;
     private static final double SOUTHWEST_LAT_BOUND = 0.055;
     private static final double NORTHEAST_LNG_BOUND = 0.075;
-    private static final int ACCESS_FINE_LOCATION_CODE = 10;
-    private static final int ACCESS_COARSE_LOCATION_CODE = 11;
     private static final int REQUEST_CHECK_SETTINGS = 13;
-    private static final String API_KEY = BuildConfig.API_KEY;
+    private static int PERMISSION_ALL = 1;
 
     public static LocationManager locationManager;
 
@@ -119,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public static List<HashMap<String, String>> nearbyRestaurantList = new ArrayList();
     public static List<Restaurant> nearbyRestaurant = new ArrayList<>();
+    public static String userChoice = null;
 
     // This is a fake configuration for local testing purposes
     public static boolean fakeConfig = true;
@@ -140,12 +142,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     TextView userProfileFirstName, userProfileLastName, userProfileEmail;
 
     // User Profile data
-    Uri photoUrl;
-    String firstName, lastName, email;
+    public static Uri userPhotoUrl;
+    public static String userFirstName;
+    String userLastName, userEmail;
 
     // Firebase database reference
     public static FirebaseFirestore firebaseFirestore;
     public static CollectionReference workmatesReference;
+    public static String userDocumentID = null;
 
     // Firestore options for workmates RecyclerView
     public static FirestoreRecyclerOptions<Workmate> optionsForWorkmatesRecyclerView;
@@ -256,6 +260,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getProfileData();
                 applyProfileDataOnHeader();
 
+                // Instancing new utilitary class to create user on Firestore if needed
+                ManageUserAccountOnFirestore manageUserAccountOnFirestore = new ManageUserAccountOnFirestore();
+                manageUserAccountOnFirestore.checkIfUserIsAlreadyCreated();
 
                 // Instancing new utilitary class to update workmates collection
                 WorkmatesChoiceUpdate workmatesChoiceUpdate = new WorkmatesChoiceUpdate();
@@ -282,72 +289,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private boolean checkPermissions() {
+        String[] PERMISSIONS = {
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION};
+
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
-        if (ActivityCompat.checkSelfPermission(getApplication().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this);
-                return true;
-            }
-            if (locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 10000, 0, this);
-                return true;
-            }
-            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0, this);
-                return true;
-            }
+        if (ActivityCompat.checkSelfPermission(getApplication().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(getApplication().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return true;
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION
-            }, ACCESS_FINE_LOCATION_CODE);
+            ActivityCompat.requestPermissions(this, PERMISSIONS,PERMISSION_ALL);
             return false;
         }
-
-        if (ActivityCompat.checkSelfPermission(getApplication().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this);
-                return true;
-            }
-            if (locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 10000, 0, this);
-                return true;
-            }
-            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0, this);
-                return true;
-            }
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            }, ACCESS_COARSE_LOCATION_CODE);
-            return false;
-        }
-        return false;
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == ACCESS_FINE_LOCATION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(MainActivity.this,
-                               "Access fine location permission Granted",
-                               Toast.LENGTH_SHORT)
-                        .show();
-            } else
-                checkPermissions();
-        }
-
-        if (requestCode == ACCESS_COARSE_LOCATION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(MainActivity.this,
-                               "Access coarse location permission Granted",
-                               Toast.LENGTH_SHORT)
-                        .show();
-            } else
-                checkPermissions();
+        if (requestCode == PERMISSION_ALL) {
+            for (int i = 0; i < grantResults.length; i++) {
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(MainActivity.this,
+                                   "Access " + permissions[i] + " permission Granted",
+                                   Toast.LENGTH_SHORT)
+                            .show();
+                }
+                else
+                    this.recreate();
+            }
         }
     }
 
@@ -372,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void initGooglePlaces() {
         // Initialize the Google Places SDK
-        Places.initialize(this, API_KEY);
+        Places.initialize(this, getString(R.string.google_api_key));
         // Create a new Places client instance
         placesClient = Places.createClient(this);
     }
@@ -563,14 +534,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Name, email address, and profile photo Url
                 String name = profile.getDisplayName();
                 getIdentity(name);
-                email = profile.getEmail();
-                photoUrl = profile.getPhotoUrl();
+                userEmail = profile.getEmail();
+                userPhotoUrl = profile.getPhotoUrl();
             }
         }
     }
 
     public void getIdentity(String userIdentity) {
-        firstName = lastName = null;
+        userFirstName = userLastName = null;
         int lastSpacePosition = 0;
         int index = 0;
 
@@ -582,27 +553,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         // Retrieving firstname and lastname
-        firstName = userIdentity.substring(0, lastSpacePosition);
-        lastName = userIdentity.substring(lastSpacePosition + 1);
+        userFirstName = userIdentity.substring(0, lastSpacePosition);
+        userLastName = userIdentity.substring(lastSpacePosition + 1);
     }
 
     public void applyProfileDataOnHeader() {
         // Apply profile informations into drawer layout
         Glide.with(this)
-                .load(photoUrl)
+                .load(userPhotoUrl)
                 .apply(RequestOptions.circleCropTransform())
                 .into(userProfileImage);
 
-        userProfileFirstName.setText(firstName);
-        userProfileLastName.setText(lastName);
-        userProfileEmail.setText(email);
+        userProfileFirstName.setText(userFirstName);
+        userProfileLastName.setText(userLastName);
+        userProfileEmail.setText(userEmail);
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.current_lunch:
-                Toast.makeText(this, getString(R.string.drawer_item_your_lunch) + " selected", Toast.LENGTH_SHORT).show();
+                if (userDocumentID != null){
+                    Restaurant currentRestaurant = new Restaurant();
+                    currentRestaurant = Restaurant.searchById(userChoice);
+                    Intent detailRestaurantActivity = new Intent(this, DetailRestaurantActivity.class);
+                    detailRestaurantActivity.putExtra(RESTAURANT_INDEX, nearbyRestaurantList.indexOf(currentRestaurant));
+
+                    // Setting options for cloud firestore
+                    Query query = workmatesReference.whereEqualTo("choice", userChoice);
+                    // Recycler Options
+                    optionsForWorkmatesEatingInThisRestaurant = new FirestoreRecyclerOptions.Builder<Workmate>()
+                            .setQuery(query,Workmate.class)
+                            .build();
+
+                    startActivity(detailRestaurantActivity);
+                }
                 break;
             case R.id.settings:
                 Toast.makeText(this, getString(R.string.drawer_item_settings) + " selected", Toast.LENGTH_SHORT).show();

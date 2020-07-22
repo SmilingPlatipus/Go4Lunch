@@ -6,13 +6,13 @@ import android.graphics.Color;
 import android.util.Log;
 
 
+import com.example.go4lunch.R;
 import com.example.go4lunch.models.Restaurant;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import static com.example.go4lunch.BuildConfig.API_KEY;
 import static com.example.go4lunch.activities.MainActivity.PROXIMITY_RADIUS;
 import static com.example.go4lunch.activities.MainActivity.fakeConfig;
 import static com.example.go4lunch.activities.MainActivity.indexOfRestaurantToGetDetails;
@@ -31,6 +31,8 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
 {
     private static final String TAG = "RestaurantMarkerHandler";
     private boolean isLastPageCurrentlyParsed = false;
+    public static final int DEFAULT_MARKER_COLOR = Color.BLUE;
+    public static final int SELECTED_MARKER_COLOR = Color.GREEN;
     Context context;
 
     private RestaurantMarkersHandlerCallback restaurantMarkersHandlerCallback = null;
@@ -44,7 +46,7 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
         if (!fakeConfig) {
             String url = getPlacesSearchUrl(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), "restaurant");
             Object dataTransfer[] = new Object[2];
-            dataTransfer[0] = API_KEY;
+            dataTransfer[0] = context.getString(R.string.google_api_key);
             dataTransfer[1] = url;
 
             NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
@@ -54,7 +56,7 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
         }
         else{
             Object dataTransfer[] = new Object[2];
-            dataTransfer[0] = API_KEY;
+            dataTransfer[0] = context.getString(R.string.google_api_key);
             dataTransfer[1] = loadJSONFromAsset(context,"places_search_results_cahors_page_1");
 
             NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
@@ -79,7 +81,7 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
         myBitmap.setPixels(allpixels,0,myBitmap.getWidth(),0, 0, myBitmap.getWidth(),myBitmap.getHeight());
     }
 
-    public static void addCustomRestaurantMarker(HashMap<String, String> googlePlace, Bitmap mIcon){
+    public static void addCustomRestaurantMarker(HashMap<String, String> googlePlace, Bitmap mIcon, int color){
 
         MarkerOptions markerOptions = new MarkerOptions();
 
@@ -94,7 +96,7 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
         markerOptions.snippet(vicinity);
 
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(mIcon,100,150,false);
-        changeBitmapTintTo(scaledBitmap, Color.RED);
+        changeBitmapTintTo(scaledBitmap, color);
         mIcon = scaledBitmap;
         BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(mIcon);
 
@@ -108,14 +110,14 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
         googlePlaceUrl.append("&radius=" + PROXIMITY_RADIUS);
         googlePlaceUrl.append("&type=" + nearbyPlace);
         googlePlaceUrl.append("&sensor=true");
-        googlePlaceUrl.append("&key=" + API_KEY);
+        googlePlaceUrl.append("&key=" + context.getString(R.string.google_api_key));
 
         return googlePlaceUrl.toString();
     }
 
     public String getPlacesSearchNextPageUrl(String nextPageToken){
         StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-        googlePlaceUrl.append("&key=" + API_KEY);
+        googlePlaceUrl.append("&key=" + context.getString(R.string.google_api_key));
         googlePlaceUrl.append("&pagetoken=" + nextPageToken);
 
         return googlePlaceUrl.toString();
@@ -123,7 +125,7 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
 
     private String makePlacesDetailsRequest(String placeId){
         StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/details/json?");
-        googlePlaceUrl.append("&key=" + API_KEY);
+        googlePlaceUrl.append("&key=" + context.getString(R.string.google_api_key));
         googlePlaceUrl.append("&place_id=" + placeId);
 
         return googlePlaceUrl.toString();
@@ -136,7 +138,7 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
             StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo?");
             googlePlaceUrl.append("maxwidth=" + maxWidth);
             googlePlaceUrl.append("&photoreference=" + photoReference);
-            googlePlaceUrl.append("&key=" + API_KEY);
+            googlePlaceUrl.append("&key=" + context.getString(R.string.google_api_key));
 
             return googlePlaceUrl.toString();
         }
@@ -183,7 +185,7 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
         if (nextPageToken != null) {
             if (!fakeConfig) {
                 Object dataTransfer[] = new Object[2];
-                dataTransfer[0] = API_KEY;
+                dataTransfer[0] = context.getString(R.string.google_api_key);
                 dataTransfer[1] = getPlacesSearchNextPageUrl(nextPageToken);
 
                 NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
@@ -192,7 +194,7 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
             }
             else {
                 Object dataTransfer[] = new Object[2];
-                dataTransfer[0] = API_KEY;
+                dataTransfer[0] = context.getString(R.string.google_api_key);
                 dataTransfer[1] = loadJSONFromAsset(context,"places_search_results_cahors_page_" + tokenNumber);
 
                 NearbyRestaurants nearbyRestaurants = new NearbyRestaurants(this);
@@ -234,7 +236,7 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
     public void onPlaceDetailsCompleted(HashMap<String, String> googlePlace, Bitmap mIcon) {
         Log.i(TAG, "onPlaceDetailsCompleted: adding restaurant : " + googlePlace.get("place_name"));
         // Adding markers, one by one to the map
-        addCustomRestaurantMarker(googlePlace,mIcon);
+        addCustomRestaurantMarker(googlePlace,mIcon,DEFAULT_MARKER_COLOR);
         // Finally creating one by one our restaurants
         nearbyRestaurant.add(new Restaurant(googlePlace, lastKnownLocation));
 

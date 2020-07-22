@@ -19,11 +19,24 @@ import androidx.core.app.ActivityCompat;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
+import com.example.go4lunch.models.Restaurant;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import static com.example.go4lunch.activities.MainActivity.customRestaurantBitmap;
+import static com.example.go4lunch.activities.MainActivity.nearbyRestaurant;
+import static com.example.go4lunch.activities.MainActivity.userChoice;
+import static com.example.go4lunch.activities.MainActivity.userDocumentID;
+import static com.example.go4lunch.activities.MainActivity.userFirstName;
+import static com.example.go4lunch.activities.MainActivity.userPhotoUrl;
+import static com.example.go4lunch.activities.MainActivity.workmatesReference;
 import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
 import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
+import static com.example.go4lunch.utils.RestaurantMarkersHandler.DEFAULT_MARKER_COLOR;
+import static com.example.go4lunch.utils.RestaurantMarkersHandler.SELECTED_MARKER_COLOR;
+import static com.example.go4lunch.utils.RestaurantMarkersHandler.addCustomRestaurantMarker;
 
 public class DetailRestaurantActivity extends AppCompatActivity
 {
@@ -129,6 +142,34 @@ public class DetailRestaurantActivity extends AppCompatActivity
                 goToUrl(currentRestaurant.get("website"));
             }
         });
+
+        detailRestaurantLike.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(), getString(R.string.detail_restaurant_choice) + currentRestaurant.get("place_name"), Toast.LENGTH_SHORT).show();
+
+                Restaurant lastChoice = new Restaurant();
+                Restaurant finalLastChoice = lastChoice;
+
+                if (userChoice != null) {
+                    lastChoice = Restaurant.searchById(userChoice);
+                }
+                workmatesReference.document(userDocumentID).update("choice", currentRestaurant.get("place_id"))
+                .addOnSuccessListener(new OnSuccessListener<Void>()
+                {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // First changing previous marker color if he has no more participants
+                        if (userChoice != null)
+                            if (finalLastChoice.getWorkmatesCount() == 0)
+                                addCustomRestaurantMarker(finalLastChoice.getInstanceAsHashMap(), customRestaurantBitmap, DEFAULT_MARKER_COLOR);
+
+                        addCustomRestaurantMarker(currentRestaurant, customRestaurantBitmap, SELECTED_MARKER_COLOR);
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -143,12 +184,10 @@ public class DetailRestaurantActivity extends AppCompatActivity
 
     }
 
-
     private void goToUrl (String url) {
         Uri uriUrl = Uri.parse(url);
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
         startActivity(launchBrowser);
     }
-
 
 }

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import static androidx.core.content.ContextCompat.startActivity;
 import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
 import static com.example.go4lunch.activities.MainActivity.optionsForWorkmatesEatingInThisRestaurant;
+import static com.example.go4lunch.activities.MainActivity.userFirstName;
 import static com.example.go4lunch.activities.MainActivity.workmatesReference;
 import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
 
@@ -45,6 +47,13 @@ public class WorkmateAdapter extends FirestoreRecyclerAdapter<Workmate, Workmate
 
     @Override
     protected void onBindViewHolder(@NonNull WorkmateHolder holder, int position, @NonNull Workmate model) {
+        if (getSnapshots().getSnapshot(position).get("name").toString().compareTo(userFirstName) == 0){
+            RecyclerView.LayoutParams param = (RecyclerView.LayoutParams)holder.itemView.getLayoutParams();
+            param.height = 0;
+            param.width = LinearLayout.LayoutParams.MATCH_PARENT;
+            holder.itemView.setVisibility(View.VISIBLE);
+            return;
+        }
         StringBuilder workmateString = new StringBuilder(model.getName() + " ");
         if (model.getChoice().compareTo("null") != 0) {
             workmateString.append(context.getString(R.string.workmate_choice));

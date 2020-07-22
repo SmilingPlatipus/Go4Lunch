@@ -51,5 +51,6 @@
 
     <!-- Google Map purposes -->
     <string name="custom_marker_url" translatable="false">https://cdn.onlinewebfonts.com/svg/img_57428.png</string>
+    <string name="detail_restaurant_choice">\"You choose  : \"</string>
 
 </resources>
