@@ -23,5 +23,6 @@
     <string name="restaurant_proximity_metric">mètres</string>
     <string name="more_details">voir plus de détails</string>
     <string name="workmate_choice">a choisi :</string>
-    <string name="detail_restaurant_choice">\"You choose  : \"</string>
+    <string name="detail_restaurant_choice">Vous avez choisi :</string>
+    <string name="drawer_item_current_lunch_not_selected">Vous n\'avez pas encore choisi de restaurant</string>
 </resources>

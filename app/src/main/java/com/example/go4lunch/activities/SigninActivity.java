@@ -48,7 +48,7 @@ public class SigninActivity extends AppCompatActivity
     }
 
     private void signIn(){
-        Log.d(TAG, "signIn: signin in with Google and FB");
+        Log.d(TAG, "signIn: signin in with Google, FB, Twitter, Email");
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()

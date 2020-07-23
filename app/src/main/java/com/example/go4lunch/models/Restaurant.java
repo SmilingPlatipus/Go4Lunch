@@ -69,12 +69,16 @@ public class Restaurant
         return restaurant;
     }
 
-    public static Restaurant searchById(String placeId){
+    public static Restaurant searchByPlaceId(String placeId){
+        if (nearbyRestaurant.isEmpty())
+            return null;
         Iterator<Restaurant> iterator = nearbyRestaurant.iterator();
+        Restaurant currentRestaurant = iterator.next();
         do{
-            Restaurant currentRestaurant = iterator.next();
             if (currentRestaurant.getPlaceId().compareTo(placeId) == 0)
                 return currentRestaurant;
+            else
+                currentRestaurant = iterator.next();
         }while (iterator.hasNext());
 
         return null;

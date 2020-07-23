@@ -90,7 +90,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static androidx.core.content.ContextCompat.startActivity;
 import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
 
 
@@ -123,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static String userChoice = null;
 
     // This is a fake configuration for local testing purposes
-    public static boolean fakeConfig = true;
+    public static boolean fakeConfig = false;
     public static int tokenNumber = 2;
 
     // Google Places autocomplete purpose
@@ -573,21 +572,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.current_lunch:
-                if (userDocumentID != null){
-                    Restaurant currentRestaurant = new Restaurant();
-                    currentRestaurant = Restaurant.searchById(userChoice);
-                    Intent detailRestaurantActivity = new Intent(this, DetailRestaurantActivity.class);
-                    detailRestaurantActivity.putExtra(RESTAURANT_INDEX, nearbyRestaurantList.indexOf(currentRestaurant));
+                if (userChoice.compareTo("null") != 0){
+                    Restaurant userRestaurantChoice = new Restaurant();
+                    userRestaurantChoice = Restaurant.searchByPlaceId(userChoice);
+                    for (HashMap<String, String> currentRestaurant : nearbyRestaurantList) {
+                        if (currentRestaurant.get("place_name") != null)
+                            if (userRestaurantChoice.getName().compareTo(currentRestaurant.get("place_name")) == 0) {
+                                Intent detailRestaurantActivity = new Intent(this, DetailRestaurantActivity.class);
+                                detailRestaurantActivity.putExtra(RESTAURANT_INDEX, nearbyRestaurantList.indexOf(currentRestaurant));
 
-                    // Setting options for cloud firestore
-                    Query query = workmatesReference.whereEqualTo("choice", userChoice);
-                    // Recycler Options
-                    optionsForWorkmatesEatingInThisRestaurant = new FirestoreRecyclerOptions.Builder<Workmate>()
-                            .setQuery(query,Workmate.class)
-                            .build();
+                                // Setting options for cloud firestore
+                                Query query = workmatesReference.whereEqualTo("choice", userChoice);
+                                // Recycler Options
+                                optionsForWorkmatesEatingInThisRestaurant = new FirestoreRecyclerOptions.Builder<Workmate>()
+                                        .setQuery(query, Workmate.class)
+                                        .build();
 
-                    startActivity(detailRestaurantActivity);
+                                startActivity(detailRestaurantActivity);
+                            }
+                    }
                 }
+                else
+                    Toast.makeText(this, getString(R.string.drawer_item_current_lunch_not_selected), Toast.LENGTH_SHORT).show();
                 break;
             case R.id.settings:
                 Toast.makeText(this, getString(R.string.drawer_item_settings) + " selected", Toast.LENGTH_SHORT).show();

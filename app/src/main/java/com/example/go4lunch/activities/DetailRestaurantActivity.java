@@ -23,14 +23,11 @@ import com.example.go4lunch.models.Restaurant;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import static com.example.go4lunch.activities.MainActivity.customRestaurantBitmap;
 import static com.example.go4lunch.activities.MainActivity.nearbyRestaurant;
 import static com.example.go4lunch.activities.MainActivity.userChoice;
 import static com.example.go4lunch.activities.MainActivity.userDocumentID;
-import static com.example.go4lunch.activities.MainActivity.userFirstName;
-import static com.example.go4lunch.activities.MainActivity.userPhotoUrl;
 import static com.example.go4lunch.activities.MainActivity.workmatesReference;
 import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
 import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
@@ -153,7 +150,7 @@ public class DetailRestaurantActivity extends AppCompatActivity
                 Restaurant finalLastChoice = lastChoice;
 
                 if (userChoice != null) {
-                    lastChoice = Restaurant.searchById(userChoice);
+                    lastChoice = Restaurant.searchByPlaceId(userChoice);
                 }
                 workmatesReference.document(userDocumentID).update("choice", currentRestaurant.get("place_id"))
                 .addOnSuccessListener(new OnSuccessListener<Void>()
@@ -165,7 +162,21 @@ public class DetailRestaurantActivity extends AppCompatActivity
                             if (finalLastChoice.getWorkmatesCount() == 0)
                                 addCustomRestaurantMarker(finalLastChoice.getInstanceAsHashMap(), customRestaurantBitmap, DEFAULT_MARKER_COLOR);
 
+                        // Then changing marker color and updating workmatesCount on this restaurant
                         addCustomRestaurantMarker(currentRestaurant, customRestaurantBitmap, SELECTED_MARKER_COLOR);
+                        userChoice = currentRestaurant.get("place_id");
+                        nearbyRestaurant.get(restaurantIndex).setWorkmatesCount(nearbyRestaurant.get(restaurantIndex).getWorkmatesCount() + 1);
+
+                        // Then updating previous restaurant and marker if needed
+                        for (Restaurant currentRestaurant : nearbyRestaurant) {
+                            if (currentRestaurant.getName() != null)
+                                if (finalLastChoice.getName().compareTo(currentRestaurant.getName()) == 0) {
+                                    currentRestaurant.setWorkmatesCount(currentRestaurant.getWorkmatesCount()-1);
+                                    if (currentRestaurant.getWorkmatesCount() == 0)
+                                        addCustomRestaurantMarker(currentRestaurant.getInstanceAsHashMap(), customRestaurantBitmap, DEFAULT_MARKER_COLOR);
+                                    return;
+                                }
+                        }
                     }
                 });
             }
