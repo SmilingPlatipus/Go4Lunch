@@ -523,19 +523,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void getProfileData() {
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            for (UserInfo profile : user.getProviderData()) {
-                // Id of the provider (ex: google.com)
-                String providerId = profile.getProviderId();
-
-                // UID specific to the provider
-                String uid = profile.getUid();
-
                 // Name, email address, and profile photo Url
-                String name = profile.getDisplayName();
-                getIdentity(name);
-                userEmail = profile.getEmail();
-                userPhotoUrl = profile.getPhotoUrl();
-            }
+                getIdentity(user.getDisplayName());
+                userEmail = user.getEmail();
+                userPhotoUrl = user.getPhotoUrl();
         }
     }
 

@@ -12,15 +12,20 @@ import androidx.multidex.MultiDex;
 
 import com.example.go4lunch.R;
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class SigninActivity extends AppCompatActivity
 {
     final int RC_SIGN_IN = 1;
     final String TAG = "SignInActivity";
+    List<AuthUI.IdpConfig> providers = Arrays.asList(
+            new AuthUI.IdpConfig.EmailBuilder().build(),
+            new AuthUI.IdpConfig.GoogleBuilder().build(),
+            new AuthUI.IdpConfig.FacebookBuilder().build(),
+            new AuthUI.IdpConfig.TwitterBuilder().build());
 
     // Multidex purposes
     @Override
@@ -40,24 +45,13 @@ public class SigninActivity extends AppCompatActivity
         super.onStart();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Intent intent = new Intent(SigninActivity.this, MainActivity.class);
-        startActivity(intent);
-    }
-
     private void signIn(){
         Log.d(TAG, "signIn: signin in with Google, FB, Twitter, Email");
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setTheme(R.style.AppTheme)
-                        .setAvailableProviders(
-                                Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build(),
-                                              new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build(),
-                                              new AuthUI.IdpConfig.Builder(AuthUI.TWITTER_PROVIDER).build(),
-                                              new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build()))
+                        .setAvailableProviders(providers)
                         .setIsSmartLockEnabled(false, true)
                         .setLogo(R.drawable.ic_baseline_group_24)
                         .build(),
@@ -81,19 +75,12 @@ public class SigninActivity extends AppCompatActivity
                 Toast.makeText(this, getString(R.string.logged_in_success),Toast.LENGTH_LONG).show();
                 Log.d(TAG, "handleResponseAfterSignIn: logged in successfully");
                 finish();
+                Intent intent = new Intent(SigninActivity.this, MainActivity.class);
+                startActivity(intent);
             } else { // ERRORS
                 if (response == null) {
                     Toast.makeText(this, getString(R.string.logged_in_failed),Toast.LENGTH_LONG).show();
                     Log.d(TAG, "handleResponseAfterSignIn: logged in failed");
-                    signIn();
-
-                } else if (response.getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    Toast.makeText(this, getString(R.string.logged_in_failed_no_network),Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "handleResponseAfterSignIn: no network available");
-                    signIn();
-                } else if (response.getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                    Toast.makeText(this, getString(R.string.logged_in_failed_unknown_error),Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "handleResponseAfterSignIn: an unknown error has occured during signin in");
                     signIn();
                 }
             }
