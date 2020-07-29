@@ -2,14 +2,17 @@ package com.example.go4lunch.models;
 
 import android.location.Location;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.Nullable;
-import static com.example.go4lunch.activities.MainActivity.nearbyRestaurant;
 
 public class Restaurant
 {
+    public static List<HashMap<String, String>> nearbyRestaurantList = new ArrayList();
+    public static List<Restaurant> nearbyRestaurant = new ArrayList<>();
     String id;
     String placeId;
     String name;
@@ -46,9 +49,11 @@ public class Restaurant
         this.latitude = Double.parseDouble(restaurant.get("lat"));
         this.longitude = Double.parseDouble(restaurant.get("lng"));
 
-        float [] result = new float[1];
-        Location.distanceBetween(latLng.getLatitude(),latLng.getLongitude(),Double.parseDouble(restaurant.get("lat")),Double.parseDouble(restaurant.get("lng")),result);
-        this.distanceFromUser = (double) result[0];
+        if (latLng != null) {
+            float[] result = new float[1];
+            Location.distanceBetween(latLng.getLatitude(), latLng.getLongitude(), Double.parseDouble(restaurant.get("lat")), Double.parseDouble(restaurant.get("lng")), result);
+            this.distanceFromUser = (double) result[0];
+        }
     }
 
     public HashMap<String, String> getInstanceAsHashMap(){
@@ -81,7 +86,10 @@ public class Restaurant
                 currentRestaurant = iterator.next();
         }while (iterator.hasNext());
 
-        return null;
+        if (currentRestaurant.getPlaceId().compareTo(placeId) == 0)
+            return currentRestaurant;
+        else
+            return null;
     }
 
     public String getId() {

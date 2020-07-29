@@ -21,6 +21,8 @@ android {
         resValue "string", "google_maps_key", (project.findProperty("API_KEY") ?: "")
     }
 
+
+
     buildTypes {
         release {
             minifyEnabled false
@@ -30,6 +32,17 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        test {
+            resources.srcDirs += ['src/test/resources']
+        }
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+        unitTests.includeAndroidResources = true
     }
 }
 
@@ -50,7 +63,7 @@ dependencies {
     // For testing purposes
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation 'androidx.test:core:1.0.0'
 
     // Firebase dependencies
     implementation 'com.google.firebase:firebase-auth:19.3.1'
@@ -71,5 +84,4 @@ dependencies {
     // Glide dependencies
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
-
 }

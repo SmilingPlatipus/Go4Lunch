@@ -17,7 +17,7 @@ import java.util.List;
 
 import static com.example.go4lunch.activities.MainActivity.customRestaurantBitmap;
 import static com.example.go4lunch.activities.MainActivity.firebaseFirestore;
-import static com.example.go4lunch.activities.MainActivity.nearbyRestaurant;
+import static com.example.go4lunch.models.Restaurant.nearbyRestaurant;
 import static com.example.go4lunch.activities.MainActivity.userDocumentID;
 import static com.example.go4lunch.activities.MainActivity.workmatesReference;
 import static com.example.go4lunch.utils.RestaurantMarkersHandler.SELECTED_MARKER_COLOR;

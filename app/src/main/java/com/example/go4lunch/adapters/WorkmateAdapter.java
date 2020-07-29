@@ -25,7 +25,7 @@ import com.google.firebase.firestore.Query;
 import java.util.HashMap;
 
 import static androidx.core.content.ContextCompat.startActivity;
-import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
+import static com.example.go4lunch.models.Restaurant.nearbyRestaurantList;
 import static com.example.go4lunch.activities.MainActivity.optionsForWorkmatesEatingInThisRestaurant;
 import static com.example.go4lunch.activities.MainActivity.userFirstName;
 import static com.example.go4lunch.activities.MainActivity.workmatesReference;

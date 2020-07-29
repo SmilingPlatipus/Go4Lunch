@@ -77,7 +77,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -91,6 +90,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
+import static com.example.go4lunch.models.Restaurant.nearbyRestaurantList;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener
@@ -108,6 +108,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // The firebase user logged in the application
     FirebaseUser user;
 
+    // For permissions purpose
+    boolean isPermissionsGranted = false;
+
     // Google maps purpose
     public static GoogleMap mMap;
     public static MapStateManager savedMapState;
@@ -117,12 +120,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static Bitmap customRestaurantBitmap = null;
     public static int indexOfRestaurantToGetDetails;
 
-    public static List<HashMap<String, String>> nearbyRestaurantList = new ArrayList();
-    public static List<Restaurant> nearbyRestaurant = new ArrayList<>();
+
     public static String userChoice = null;
 
     // This is a fake configuration for local testing purposes
-    public static boolean fakeConfig = false;
+    public static boolean fakeConfig = true;
     public static int tokenNumber = 2;
 
     // Google Places autocomplete purpose
@@ -177,101 +179,107 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Checking if user is logged on and geolocation permissions are granted.
         // While it's not the case, application is waiting for it
 
-        if (checkCurrentUser() != null && checkPermissions()) {
-            // Geolocating and searching for Restaurants in the neighborhood, in background
-            getDeviceLocation();
-            if (lastKnownLocation == null){
-                LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                        .addLocationRequest(createLocationRequest());
-                SettingsClient client = LocationServices.getSettingsClient(this);
-                Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+        if (checkCurrentUser() != null ) {
+            isPermissionsGranted = checkPermissions();
+            if (isPermissionsGranted) {
+                // Geolocating and searching for Restaurants in the neighborhood, in background
+                getDeviceLocation();
+                if (lastKnownLocation == null) {
+                    LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                            .addLocationRequest(createLocationRequest());
+                    SettingsClient client = LocationServices.getSettingsClient(this);
+                    Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
 
-                task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-                    @Override
-                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        // All location settings are satisfied. The client can initialize
-                        // location requests here.
-                        getDeviceLocation();
-                    }
-                });
+                    task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>()
+                    {
+                        @Override
+                        public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                            // All location settings are satisfied. The client can initialize
+                            // location requests here.
+                            getDeviceLocation();
+                        }
+                    });
 
-                task.addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (e instanceof ResolvableApiException) {
-                            // Location settings are not satisfied, but this can be fixed
-                            // by showing the user a dialog.
-                            try {
-                                // Show the dialog by calling startResolutionForResult(),
-                                // and check the result in onActivityResult().
-                                ResolvableApiException resolvable = (ResolvableApiException) e;
-                                resolvable.startResolutionForResult(MainActivity.this, REQUEST_CHECK_SETTINGS);
-                            } catch (IntentSender.SendIntentException sendEx) {
-                                // Ignore the error.
+                    task.addOnFailureListener(this, new OnFailureListener()
+                    {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (e instanceof ResolvableApiException) {
+                                // Location settings are not satisfied, but this can be fixed
+                                // by showing the user a dialog.
+                                try {
+                                    // Show the dialog by calling startResolutionForResult(),
+                                    // and check the result in onActivityResult().
+                                    ResolvableApiException resolvable = (ResolvableApiException) e;
+                                    resolvable.startResolutionForResult(MainActivity.this, REQUEST_CHECK_SETTINGS);
+                                } catch (IntentSender.SendIntentException sendEx) {
+                                    // Ignore the error.
+                                }
                             }
                         }
-                    }
-                });
-                this.recreate();
+                    });
+                    this.recreate();
+                }
+                else {
+                    setContentView(R.layout.activity_main);
+
+                    materialSearchBar = findViewById(R.id.searchBar);
+                    mToolbar = findViewById(R.id.toolbar);
+                    mDrawerLayout = findViewById(R.id.drawer);
+                    mDrawerNavigationView = findViewById(R.id.drawer_navigationview);
+
+                    BottomNavigationView bottomNavView = findViewById(R.id.bottom_nav_view);
+                    // Passing each menu ID as a set of Ids because each
+                    // menu should be considered as top level destinations.
+                    AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                            R.id.navigation_map, R.id.navigation_restaurants, R.id.navigation_workmates)
+                            .build();
+                    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+                    NavigationUI.setupWithNavController(bottomNavView, navController);
+
+                    setSupportActionBar(mToolbar);
+                    getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+                    mDrawerNavigationView.setNavigationItemSelectedListener(this);
+
+                    toggle = new ActionBarDrawerToggle(
+                            this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
+                    mDrawerLayout.addDrawerListener(toggle);
+                    toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.quantum_white_100));
+                    toggle.syncState();
+
+                    initProfileInformations();
+
+                    // Access the workmates collection on Firestore and keep real time synced
+                    firebaseFirestore = FirebaseFirestore.getInstance();
+                    workmatesReference = firebaseFirestore.collection("workmates");
+                    // Query to database
+                    Query query = workmatesReference.orderBy("name", Query.Direction.DESCENDING);
+                    // Recycler Options
+                    optionsForWorkmatesRecyclerView = new FirestoreRecyclerOptions.Builder<Workmate>()
+                            .setQuery(query, Workmate.class)
+                            .build();
+
+                    initGooglePlaces();
+                    getUserProfile();
+                    getProfileData();
+                    applyProfileDataOnHeader();
+
+                    // Instancing new utilitary class to create user on Firestore if needed
+                    ManageUserAccountOnFirestore manageUserAccountOnFirestore = new ManageUserAccountOnFirestore();
+                    manageUserAccountOnFirestore.checkIfUserIsAlreadyCreated();
+
+                    // Instancing new utilitary class to update workmates collection
+                    WorkmatesChoiceUpdate workmatesChoiceUpdate = new WorkmatesChoiceUpdate();
+
+                    // Searching for restaurants in the current area, with Google Places requests
+                    RestaurantMarkersHandler restaurantMarkersHandler = new RestaurantMarkersHandler(this, workmatesChoiceUpdate);
+                    restaurantMarkersHandler.getRestaurantsLocations();
+                }
             }
-            else {
-                setContentView(R.layout.activity_main);
-
-                materialSearchBar = findViewById(R.id.searchBar);
-                mToolbar = findViewById(R.id.toolbar);
-                mDrawerLayout = findViewById(R.id.drawer);
-                mDrawerNavigationView = findViewById(R.id.drawer_navigationview);
-
-                BottomNavigationView bottomNavView = findViewById(R.id.bottom_nav_view);
-                // Passing each menu ID as a set of Ids because each
-                // menu should be considered as top level destinations.
-                AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                        R.id.navigation_map, R.id.navigation_restaurants, R.id.navigation_workmates)
-                        .build();
-                NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-                NavigationUI.setupWithNavController(bottomNavView, navController);
-
-                setSupportActionBar(mToolbar);
-                getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-                mDrawerNavigationView.setNavigationItemSelectedListener(this);
-
-                toggle = new ActionBarDrawerToggle(
-                        this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
-                mDrawerLayout.addDrawerListener(toggle);
-                toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.quantum_white_100));
-                toggle.syncState();
-
-                initProfileInformations();
-
-                // Access the workmates collection on Firestore and keep real time synced
-                firebaseFirestore = FirebaseFirestore.getInstance();
-                workmatesReference = firebaseFirestore.collection("workmates");
-                // Query to database
-                Query query = workmatesReference.orderBy("name", Query.Direction.DESCENDING);
-                // Recycler Options
-                optionsForWorkmatesRecyclerView = new FirestoreRecyclerOptions.Builder<Workmate>()
-                        .setQuery(query, Workmate.class)
-                        .build();
-
-                initGooglePlaces();
-                getUserProfile();
-                getProfileData();
-                applyProfileDataOnHeader();
-
-                // Instancing new utilitary class to create user on Firestore if needed
-                ManageUserAccountOnFirestore manageUserAccountOnFirestore = new ManageUserAccountOnFirestore();
-                manageUserAccountOnFirestore.checkIfUserIsAlreadyCreated();
-
-                // Instancing new utilitary class to update workmates collection
-                WorkmatesChoiceUpdate workmatesChoiceUpdate = new WorkmatesChoiceUpdate();
-
-                // Searching for restaurants in the current area, with Google Places requests
-                RestaurantMarkersHandler restaurantMarkersHandler = new RestaurantMarkersHandler(this, workmatesChoiceUpdate);
-                restaurantMarkersHandler.getRestaurantsLocations();
-            }
+            else
+                isPermissionsGranted = checkPermissions();
         }
-
     }
 
     @Override

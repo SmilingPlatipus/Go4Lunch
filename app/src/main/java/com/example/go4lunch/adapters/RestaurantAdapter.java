@@ -28,7 +28,7 @@ import static androidx.core.content.ContextCompat.startActivity;
 import static com.example.go4lunch.activities.MainActivity.optionsForWorkmatesEatingInThisRestaurant;
 import static com.example.go4lunch.activities.MainActivity.workmatesReference;
 import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
-import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
+import static com.example.go4lunch.models.Restaurant.nearbyRestaurantList;
 
 public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.RestaurantHolder>
 {

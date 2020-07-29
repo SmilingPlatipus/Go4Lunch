@@ -18,8 +18,8 @@ import static com.example.go4lunch.activities.MainActivity.fakeConfig;
 import static com.example.go4lunch.activities.MainActivity.indexOfRestaurantToGetDetails;
 import static com.example.go4lunch.activities.MainActivity.lastKnownLocation;
 import static com.example.go4lunch.activities.MainActivity.mMap;
-import static com.example.go4lunch.activities.MainActivity.nearbyRestaurant;
-import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
+import static com.example.go4lunch.models.Restaurant.nearbyRestaurant;
+import static com.example.go4lunch.models.Restaurant.nearbyRestaurantList;
 import static com.example.go4lunch.activities.MainActivity.tokenNumber;
 
 import java.io.IOException;
@@ -221,7 +221,7 @@ public class RestaurantMarkersHandler implements NearbyRestaurants.NearbyRestaur
 
             is.close();
 
-            json = new String(buffer, "UTF-8");
+            json = new String(buffer);
 
 
         } catch (IOException ex) {

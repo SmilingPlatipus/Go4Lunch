@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.go4lunch.R;
 import com.example.go4lunch.adapters.RestaurantAdapter;
-import static com.example.go4lunch.activities.MainActivity.nearbyRestaurant;
+import static com.example.go4lunch.models.Restaurant.nearbyRestaurant;
 
 public class RestaurantsFragment extends Fragment
 {

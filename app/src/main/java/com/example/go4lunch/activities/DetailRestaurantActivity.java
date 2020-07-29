@@ -24,13 +24,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.HashMap;
 
+
+import static com.example.go4lunch.models.Restaurant.nearbyRestaurant;
+import static com.example.go4lunch.models.Restaurant.nearbyRestaurantList;
 import static com.example.go4lunch.activities.MainActivity.customRestaurantBitmap;
-import static com.example.go4lunch.activities.MainActivity.nearbyRestaurant;
 import static com.example.go4lunch.activities.MainActivity.userChoice;
 import static com.example.go4lunch.activities.MainActivity.userDocumentID;
 import static com.example.go4lunch.activities.MainActivity.workmatesReference;
 import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
-import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
 import static com.example.go4lunch.utils.RestaurantMarkersHandler.DEFAULT_MARKER_COLOR;
 import static com.example.go4lunch.utils.RestaurantMarkersHandler.SELECTED_MARKER_COLOR;
 import static com.example.go4lunch.utils.RestaurantMarkersHandler.addCustomRestaurantMarker;

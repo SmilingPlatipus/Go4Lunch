@@ -3,7 +3,7 @@ package com.example.go4lunch.utils;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
+import static com.example.go4lunch.models.Restaurant.nearbyRestaurantList;
 import static com.example.go4lunch.activities.MainActivity.fakeConfig;
 
 

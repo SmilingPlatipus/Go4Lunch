@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import static com.example.go4lunch.activities.MainActivity.customRestaurantBitmap;
-import static com.example.go4lunch.activities.MainActivity.nearbyRestaurantList;
+import static com.example.go4lunch.models.Restaurant.nearbyRestaurantList;
 
 
 
