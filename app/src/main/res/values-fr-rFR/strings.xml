@@ -25,4 +25,6 @@
     <string name="workmate_choice">a choisi :</string>
     <string name="detail_restaurant_choice">Vous avez choisi :</string>
     <string name="drawer_item_current_lunch_not_selected">Vous n\'avez pas encore choisi de restaurant</string>
+    <string name="notification_title">Petit rappel pour aujourd\'hui, vous avez prévu de manger à :</string>
+    <string name="notification_desc">Avec :</string>
 </resources>

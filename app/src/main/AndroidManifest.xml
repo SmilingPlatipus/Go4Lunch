@@ -47,7 +47,7 @@
         <!-- DetailRestaurantActivity purposes -->
         <activity android:name=".activities.DetailRestaurantActivity"
             android:parentActivityName=".activities.MainActivity"/>
-
+        <receiver android:name=".utils.ReminderBroadcast"/>
     </application>
 
 </manifest>

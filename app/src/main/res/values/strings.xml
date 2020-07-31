@@ -54,4 +54,11 @@
     <string name="detail_restaurant_choice">"You choose  : "</string>
     <string name="drawer_item_current_lunch_not_selected">You didn\'t choose a restaurant yet</string>
 
+    <!-- Notification purposes -->
+    <string name="notification_name" translatable="false">Go4Lunch notification</string>
+    <string name="notification_title">"Remember today, you have planned some lunch at : "</string>
+    <string name="notification_desc">With : </string>
+    <string name="channel_name" translatable="false">lunch notification</string>
+    <string name="channel_description" translatable="false">This is a reminder sending an alarm at 12 a.m for user choice</string>
+
 </resources>

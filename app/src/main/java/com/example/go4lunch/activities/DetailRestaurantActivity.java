@@ -1,9 +1,14 @@
 package com.example.go4lunch.activities;
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -20,8 +25,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
 import com.example.go4lunch.models.Restaurant;
+import com.example.go4lunch.utils.ReminderBroadcast;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.util.Calendar;
 import java.util.HashMap;
 
 
@@ -32,6 +39,8 @@ import static com.example.go4lunch.activities.MainActivity.userChoice;
 import static com.example.go4lunch.activities.MainActivity.userDocumentID;
 import static com.example.go4lunch.activities.MainActivity.workmatesReference;
 import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
+import static com.example.go4lunch.utils.ReminderBroadcast.NOTIFICATION_ID;
+import static com.example.go4lunch.utils.ReminderBroadcast.NOTIFICATION_LUNCH;
 import static com.example.go4lunch.utils.RestaurantMarkersHandler.DEFAULT_MARKER_COLOR;
 import static com.example.go4lunch.utils.RestaurantMarkersHandler.SELECTED_MARKER_COLOR;
 import static com.example.go4lunch.utils.RestaurantMarkersHandler.addCustomRestaurantMarker;
@@ -43,8 +52,10 @@ public class DetailRestaurantActivity extends AppCompatActivity
     private TextView detailRestaurantName, detailRestaurantAddress;
     private Button detailRestaurantCall, detailRestaurantWebsite, detailRestaurantLike;
     static Intent intent = new Intent();
+    NotificationManager notificationManager;
     int restaurantIndex;
     HashMap<String, String> currentRestaurant;
+    Restaurant lastChoice;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -146,9 +157,8 @@ public class DetailRestaurantActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 Toast.makeText(getApplicationContext(), getString(R.string.detail_restaurant_choice) + currentRestaurant.get("place_name"), Toast.LENGTH_SHORT).show();
-
-                Restaurant lastChoice = new Restaurant();
-                Restaurant finalLastChoice = lastChoice;
+                createNotificationChannel();
+                lastChoice = new Restaurant();
 
                 if (userChoice != null) {
                     lastChoice = Restaurant.searchByPlaceId(userChoice);
@@ -160,22 +170,24 @@ public class DetailRestaurantActivity extends AppCompatActivity
                     public void onSuccess(Void aVoid) {
                         // First changing previous marker color if he has no more participants
                         if (userChoice != null)
-                            if (finalLastChoice.getWorkmatesCount() == 0)
-                                addCustomRestaurantMarker(finalLastChoice.getInstanceAsHashMap(), customRestaurantBitmap, DEFAULT_MARKER_COLOR);
+                            if (lastChoice.getWorkmatesCount() == 0)
+                                addCustomRestaurantMarker(lastChoice.getInstanceAsHashMap(), customRestaurantBitmap, DEFAULT_MARKER_COLOR);
 
                         // Then changing marker color and updating workmatesCount on this restaurant
                         addCustomRestaurantMarker(currentRestaurant, customRestaurantBitmap, SELECTED_MARKER_COLOR);
                         userChoice = currentRestaurant.get("place_id");
+                        if (lastChoice != null)
+                            notificationManager.cancel(NOTIFICATION_ID);
+                        createAlarm();
                         nearbyRestaurant.get(restaurantIndex).setWorkmatesCount(nearbyRestaurant.get(restaurantIndex).getWorkmatesCount() + 1);
 
                         // Then updating previous restaurant and marker if needed
                         for (Restaurant currentRestaurant : nearbyRestaurant) {
                             if (currentRestaurant.getName() != null)
-                                if (finalLastChoice.getName().compareTo(currentRestaurant.getName()) == 0) {
+                                if (lastChoice.getName().compareTo(currentRestaurant.getName()) == 0) {
                                     currentRestaurant.setWorkmatesCount(currentRestaurant.getWorkmatesCount()-1);
                                     if (currentRestaurant.getWorkmatesCount() == 0)
                                         addCustomRestaurantMarker(currentRestaurant.getInstanceAsHashMap(), customRestaurantBitmap, DEFAULT_MARKER_COLOR);
-                                    return;
                                 }
                         }
                     }
@@ -202,4 +214,33 @@ public class DetailRestaurantActivity extends AppCompatActivity
         startActivity(launchBrowser);
     }
 
+    public void createAlarm(){
+        Intent intent = new Intent(DetailRestaurantActivity.this, ReminderBroadcast.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(DetailRestaurantActivity.this, 0, intent, 0);
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 00);
+
+        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis()/1000,pendingIntent);
+    }
+
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_LUNCH, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
 }
