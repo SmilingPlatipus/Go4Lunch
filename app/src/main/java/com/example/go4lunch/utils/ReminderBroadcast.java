@@ -36,19 +36,21 @@ public class ReminderBroadcast extends BroadcastReceiver
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             workmatesEatingWithUser.append(document.get("name"));
+                            workmatesEatingWithUser.append(" ");
                         }
+                        String notificationTitle, notificationDesc;
+                        notificationTitle = context.getString(R.string.notification_title) + userLunchChoice;
+                        notificationDesc = workmatesEatingWithUser.toString();
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_LUNCH)
+                                .setSmallIcon(R.drawable.ic_baseline_notifications_24)
+                                .setContentTitle(notificationTitle)
+                                .setContentText(notificationDesc)
+                                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+
+                        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+                        notificationManager.notify(NOTIFICATION_ID, builder.build());
                     }
                 });
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_LUNCH)
-                .setSmallIcon(R.drawable.ic_baseline_notifications_24)
-                .setContentTitle(context.getString(R.string.notification_name))
-                .setContentText(context.getString(R.string.notification_title) + userLunchChoice)
-                .setSubText(workmatesEatingWithUser.toString())
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 }

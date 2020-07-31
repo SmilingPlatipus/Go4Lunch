@@ -39,7 +39,6 @@ import static com.example.go4lunch.activities.MainActivity.userChoice;
 import static com.example.go4lunch.activities.MainActivity.userDocumentID;
 import static com.example.go4lunch.activities.MainActivity.workmatesReference;
 import static com.example.go4lunch.fragments.map.MapFragment.RESTAURANT_INDEX;
-import static com.example.go4lunch.utils.ReminderBroadcast.NOTIFICATION_ID;
 import static com.example.go4lunch.utils.ReminderBroadcast.NOTIFICATION_LUNCH;
 import static com.example.go4lunch.utils.RestaurantMarkersHandler.DEFAULT_MARKER_COLOR;
 import static com.example.go4lunch.utils.RestaurantMarkersHandler.SELECTED_MARKER_COLOR;
@@ -157,6 +156,7 @@ public class DetailRestaurantActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 Toast.makeText(getApplicationContext(), getString(R.string.detail_restaurant_choice) + currentRestaurant.get("place_name"), Toast.LENGTH_SHORT).show();
+
                 createNotificationChannel();
                 lastChoice = new Restaurant();
 
@@ -169,16 +169,18 @@ public class DetailRestaurantActivity extends AppCompatActivity
                     @Override
                     public void onSuccess(Void aVoid) {
                         // First changing previous marker color if he has no more participants
-                        if (userChoice != null)
+                        if (userChoice != null) {
                             if (lastChoice.getWorkmatesCount() == 0)
                                 addCustomRestaurantMarker(lastChoice.getInstanceAsHashMap(), customRestaurantBitmap, DEFAULT_MARKER_COLOR);
+
+                            notificationManager.cancelAll();
+                        }
 
                         // Then changing marker color and updating workmatesCount on this restaurant
                         addCustomRestaurantMarker(currentRestaurant, customRestaurantBitmap, SELECTED_MARKER_COLOR);
                         userChoice = currentRestaurant.get("place_id");
-                        if (lastChoice != null)
-                            notificationManager.cancel(NOTIFICATION_ID);
                         createAlarm();
+
                         nearbyRestaurant.get(restaurantIndex).setWorkmatesCount(nearbyRestaurant.get(restaurantIndex).getWorkmatesCount() + 1);
 
                         // Then updating previous restaurant and marker if needed
@@ -221,12 +223,11 @@ public class DetailRestaurantActivity extends AppCompatActivity
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.HOUR_OF_DAY, 19);
         calendar.set(Calendar.MINUTE, 00);
 
         alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis()/1000,pendingIntent);
     }
-
 
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
